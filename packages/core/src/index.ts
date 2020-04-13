@@ -254,6 +254,15 @@ export function createForm<FieldProps, VirtualFieldProps>(
       const errorsChanged = field.isDirty('errors')
       const editableChanged = field.isDirty('editable')
 
+      //TODO:增加点击事件处理
+      const clickChanged = field.isDirty('click')
+      if (clickChanged) {
+        heart.publish(LifeCycleTypes.ON_FIELD_CLICK, field)
+        field.setSourceState((state: IFieldState<FieldProps>) => {
+          state.click = false
+        })
+      }
+
       if (initializedChanged) {
         heart.publish(LifeCycleTypes.ON_FIELD_INIT, field)
         const isEmptyValue = !isValid(published.value)
@@ -855,6 +864,13 @@ export function createForm<FieldProps, VirtualFieldProps>(
       focus() {
         field.setState((state: IFieldState<FieldProps>) => {
           state.active = true
+        })
+      },
+      click(args: any[]) {
+        //TODO:增加点击事件及点击事件参数
+        field.setState((state: IFieldState<FieldProps>) => {
+          state.click = true
+          state.clickArgs = args
         })
       },
       blur() {

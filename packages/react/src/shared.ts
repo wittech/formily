@@ -299,7 +299,9 @@ export const FormEffectHooks = {
   ),
   onFieldInitialValueChange$: createEffectHook<IFieldState>(
     LifeCycleTypes.ON_FIELD_INITIAL_VALUE_CHANGE
-  )
+  ),
+  //TODO:增加字段点击事件
+  onFieldClick$: createEffectHook<IFieldState>(LifeCycleTypes.ON_FIELD_CLICK)
 }
 
 export const createEffectsProvider = <TActions = any, TContext = any>(

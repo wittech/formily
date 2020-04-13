@@ -7,7 +7,7 @@ import {
   BigData
 } from '@formily/shared'
 
-const ExpRE = /^\s*\{\{(.*)\}\}\s*$/
+const ExpRE = /^\s*\<\%(.*)\%\>\s*$/
 
 export const complieExpression = <Source = any, Context = any>(
   source: Source,

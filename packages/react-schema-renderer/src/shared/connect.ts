@@ -104,7 +104,15 @@ export const connect = <ExtendsComponentKey extends string = ''>(
           if (isFn(schemaComponentProps['onBlur'])) {
             schemaComponentProps[options.eventName](...args)
           }
-        }
+        },
+        onClick: (args: any) => {
+          //TODO:增加点击事件
+          mutators.click(args)
+          if (isFn(schemaComponentProps['onClick'])) {
+            schemaComponentProps[options.eventName](args)
+          }
+        },
+        path: schema.key
       }
       if (isValid(editable)) {
         if (isFn(editable)) {

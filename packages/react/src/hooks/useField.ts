@@ -23,6 +23,10 @@ const extendMutators = (
       if (props.triggerType === 'onBlur') {
         mutators.validate({ throwErrors: false })
       }
+    },
+    click: (args: any) => {
+      //TODO:增加点击事件
+      mutators.click(args)
     }
   }
 }

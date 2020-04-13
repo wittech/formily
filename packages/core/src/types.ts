@@ -62,7 +62,9 @@ export enum LifeCycleTypes {
   ON_FIELD_VALIDATE_START = 'onFieldValidateStart',
   ON_FIELD_VALIDATE_END = 'onFieldValidateEnd',
   ON_FIELD_MOUNT = 'onFieldMount',
-  ON_FIELD_UNMOUNT = 'onFieldUnmount'
+  ON_FIELD_UNMOUNT = 'onFieldUnmount',
+  //TODO:增加点击事件
+  ON_FIELD_CLICK = 'onFieldClick'
 }
 
 export interface FormGraphProps {
@@ -160,6 +162,9 @@ export interface IFieldState<FieldProps = any> {
   unmountRemoveValue: boolean
   props: FieldProps
   [key: string]: any
+  //TODO:增加定义
+  click: boolean
+  clickArgs: any
 }
 
 export type IFieldUserState<FieldProps = any> = Omit<

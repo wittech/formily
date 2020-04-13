@@ -363,9 +363,10 @@ export class Schema implements ISchema {
     return this['x-component']
   }
   getExtendsRenderer() {
-    if (isValid(this['x-render'])) {
-      deprecate('x-render is deprecate in future, Please do not use it.')
-    }
+    // if (isValid(this['x-render'])) {
+    //   deprecate('x-render is deprecate in future, Please do not use it.')
+    // }
+    //TODO:移除警告
     return this['x-render']
   }
   getExtendsEffect() {
