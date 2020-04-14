@@ -92,6 +92,7 @@ export function createForm<FieldProps, VirtualFieldProps>(
   }
 
   function syncFieldIntialValues(state: IFieldState) {
+    if (state.name === '') return
     const initialValue = getFormInitialValuesIn(state.name)
     if (!isEqual(initialValue, state.initialValue)) {
       state.initialValue = initialValue
@@ -108,7 +109,11 @@ export function createForm<FieldProps, VirtualFieldProps>(
   }
 
   function notifyFormValuesChange() {
-    if (isFn(options.onChange) && !state.state.unmounted) {
+    if (
+      isFn(options.onChange) &&
+      state.state.mounted &&
+      !state.state.unmounted
+    ) {
       clearTimeout(env.onChangeTimer)
       env.onChangeTimer = setTimeout(() => {
         if (state.state.unmounted) return
@@ -235,10 +240,14 @@ export function createForm<FieldProps, VirtualFieldProps>(
     function notifyTreeFromInitialValues() {
       field.setState(syncFieldIntialValues)
       graph.eachParent(path, (field: IField) => {
-        field.setState(syncFieldIntialValues, true)
+        if (isField(field)) {
+          field.setState(syncFieldIntialValues, true)
+        }
       })
       graph.eachChildren(path, (field: IField) => {
-        field.setState(syncFieldIntialValues)
+        if (isField(field)) {
+          field.setState(syncFieldIntialValues)
+        }
       })
       notifyFormInitialValuesChange()
     }
@@ -261,18 +270,6 @@ export function createForm<FieldProps, VirtualFieldProps>(
         field.setSourceState((state: IFieldState<FieldProps>) => {
           state.click = false
         })
-      }
-
-      const initializeLazy = (callback: () => void) => {
-        if (options.initializeLazySyncState) {
-          if (initialValueChanged) {
-            setTimeout(callback)
-          } else {
-            callback()
-          }
-        } else {
-          callback()
-        }
       }
 
       if (initializedChanged) {
@@ -298,19 +295,15 @@ export function createForm<FieldProps, VirtualFieldProps>(
         published.visible == false || published.unmounted === true
       if (valueChanged) {
         if (!wasHidden) {
-          initializeLazy(() => {
-            setFormValuesIn(path, published.value, true)
-            notifyTreeFromValues()
-          })
+          setFormValuesIn(path, published.value, true)
+          notifyTreeFromValues()
         }
         heart.publish(LifeCycleTypes.ON_FIELD_VALUE_CHANGE, field)
       }
       if (initialValueChanged) {
         if (!wasHidden) {
-          initializeLazy(() => {
-            setFormInitialValuesIn(path, published.initialValue, true)
-            notifyTreeFromInitialValues()
-          })
+          setFormInitialValuesIn(path, published.initialValue, true)
+          notifyTreeFromInitialValues()
         }
         heart.publish(LifeCycleTypes.ON_FIELD_INITIAL_VALUE_CHANGE, field)
       }
@@ -322,22 +315,18 @@ export function createForm<FieldProps, VirtualFieldProps>(
                 state.visibleCacheValue = published.value
               })
             }
-            initializeLazy(() => {
-              deleteFormValuesIn(path, true)
-              notifyTreeFromValues()
-            })
+            deleteFormValuesIn(path)
+            notifyTreeFromValues()
           } else {
             if (!existFormValuesIn(path)) {
-              initializeLazy(() => {
-                setFormValuesIn(
-                  path,
-                  isValid(published.visibleCacheValue)
-                    ? published.visibleCacheValue
-                    : published.initialValue,
-                  true
-                )
-                notifyTreeFromValues()
-              })
+              setFormValuesIn(
+                path,
+                isValid(published.visibleCacheValue)
+                  ? published.visibleCacheValue
+                  : published.initialValue,
+                true
+              )
+              notifyTreeFromValues()
             }
           }
         }
@@ -363,22 +352,18 @@ export function createForm<FieldProps, VirtualFieldProps>(
               state.visibleCacheValue = published.value
             })
           }
-          initializeLazy(() => {
-            deleteFormValuesIn(path, true)
-            notifyTreeFromValues()
-          })
+          deleteFormValuesIn(path, true)
+          notifyTreeFromValues()
         } else {
           if (!existFormValuesIn(path)) {
-            initializeLazy(() => {
-              setFormValuesIn(
-                path,
-                isValid(published.visibleCacheValue)
-                  ? published.visibleCacheValue
-                  : published.initialValue,
-                true
-              )
-              notifyTreeFromValues()
-            })
+            setFormValuesIn(
+              path,
+              isValid(published.visibleCacheValue)
+                ? published.visibleCacheValue
+                : published.initialValue,
+              true
+            )
+            notifyTreeFromValues()
           }
         }
         heart.publish(LifeCycleTypes.ON_FIELD_UNMOUNT, field)
@@ -733,14 +718,22 @@ export function createForm<FieldProps, VirtualFieldProps>(
     value: any,
     silent?: boolean
   ) {
-    state.setState(state => {
+    const method = silent ? 'setSourceState' : 'setState'
+    state[method](state => {
       FormPath.setIn(state[key], transformDataPath(path), value)
+      if (key === 'values') {
+        state.modified = true
+      }
     }, silent)
   }
 
   function deleteFormIn(path: FormPathPattern, key: string, silent?: boolean) {
-    state.setState(state => {
+    const method = silent ? 'setSourceState' : 'setState'
+    state[method](state => {
       FormPath.deleteIn(state[key], transformDataPath(path))
+      if (key === 'values') {
+        state.modified = true
+      }
     }, silent)
   }
 
