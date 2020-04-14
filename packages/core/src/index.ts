@@ -261,7 +261,8 @@ export function createForm<FieldProps, VirtualFieldProps>(
         field.setSourceState((state: IFieldState<FieldProps>) => {
           state.click = false
         })
-        
+      }
+
       const initializeLazy = (callback: () => void) => {
         if (options.initializeLazySyncState) {
           if (initialValueChanged) {
