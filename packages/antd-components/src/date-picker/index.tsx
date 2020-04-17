@@ -101,4 +101,18 @@ DatePicker.YearPicker = connect({
   getComponent: mapTextComponent
 })(YearPicker)
 
+class QuarterPicker extends React.Component {
+  public render() {
+    return <AntdDatePicker {...this.props} picker={'quarter'} />
+  }
+}
+
+DatePicker.QuarterPicker = connect({
+  getValueFromEvent(_, value) {
+    return transformMoment(value, 'YYYY-\QQ')
+  },
+  getProps: compose(mapStyledProps, mapMomentValue),
+  getComponent: mapTextComponent
+})(QuarterPicker)
+
 export default DatePicker
