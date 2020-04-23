@@ -36,7 +36,7 @@ const parseTabItems = (items: any, hiddenKeys?: string[]) => {
         return buf
       }
     }
-    if (schema.getExtendsComponent() === 'tabpane') {
+    if (schema.getExtendsComponent() === 'antd-tabpane') {
       return buf.concat({
         props: schema.getExtendsComponentProps(),
         schema,
@@ -90,7 +90,7 @@ type ExtendsState = {
 
 export const FormTab: React.FC<IVirtualBoxProps<IFormTab>> &
   ExtendsProps = createControllerBox<IFormTab>(
-  'tab',
+  'antd-tabs',
   ({ form, schema, name, path }: ISchemaVirtualFieldComponentProps) => {
     const orderProperties = schema.getOrderProperties()
     let { hiddenKeys, defaultActiveKey, ...componentProps } = schema.getExtendsComponentProps()
@@ -167,7 +167,7 @@ export const FormTab: React.FC<IVirtualBoxProps<IFormTab>> &
 ) as any
 
 FormTab.TabPane = createControllerBox<TabPaneProps>(
-  'tabpane',
+  'antd-tabpane',
   ({ children }) => {
     return <Fragment>{children}</Fragment>
   }
