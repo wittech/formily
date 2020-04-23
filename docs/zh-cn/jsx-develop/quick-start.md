@@ -239,6 +239,11 @@ const App = () => (
       <FormItem label="年份" name="year" component={DatePicker.YearPicker} />
       <FormItem label="月份" name="month" component={DatePicker.MonthPicker} />
       <FormItem label="时间" name="time" component={TimePicker} />
+      <FormItem
+        label="时间范围"
+        name="timerange"
+        component={TimePicker.RangePicker}
+      />
       <FormItem label="周" name="week" component={DatePicker.WeekPicker} />
       <FormItem
         label="卡片上传文件"
@@ -339,6 +344,7 @@ const getInitialValues = () => {
         date: '2020-02-20',
         month: '2020-08',
         time: '22:29:53',
+        timerange: ['9:00:00', '18:00:00'],
         week: '2020-9th',
         number: 123,
         boolean: true,
@@ -394,6 +400,11 @@ const App = () => {
           component={DatePicker.MonthPicker}
         />
         <FormItem label="时间" name="time" component={TimePicker} />
+        <FormItem
+          label="时间范围"
+          name="timerange"
+          component={TimePicker.RangePicker}
+        />
         <FormItem label="周" name="week" component={DatePicker.WeekPicker} />
         <FormItem
           label="卡片上传文件"
@@ -490,6 +501,7 @@ const getInitialValues = () => {
         month: '2020-08',
         year: '2023',
         time: '22:29:53',
+        timerange: ['9:00:00', '18:00:00'],
         week: '2020-9th',
         number: 123,
         boolean: true,
@@ -550,6 +562,11 @@ const App = () => {
           component={DatePicker.MonthPicker}
         />
         <FormItem label="时间" name="time" component={TimePicker} />
+        <FormItem
+          label="时间范围"
+          name="timerange"
+          component={TimePicker.RangePicker}
+        />
         <FormItem label="周" name="week" component={DatePicker.WeekPicker} />
         <FormItem
           label="卡片上传文件"
