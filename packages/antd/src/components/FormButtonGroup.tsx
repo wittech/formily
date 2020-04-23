@@ -154,6 +154,6 @@ export const FormButtonGroup = styled(
 `
 
 createVirtualBox<React.PropsWithChildren<IFormButtonGroupProps>>(
-  'button-group',
+  'antd-button-group',
   FormButtonGroup
 )
