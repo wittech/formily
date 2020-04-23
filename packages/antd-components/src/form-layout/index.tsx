@@ -5,7 +5,7 @@ import cls from 'classnames'
 import { IFormItemTopProps } from '../types'
 
 export const FormLayout = createVirtualBox<IFormItemTopProps>(
-  'layout',
+  'antd-form',
   props => {
     const { inline } = useDeepFormItem()
     const isInline = props.inline || inline

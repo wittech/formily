@@ -32,7 +32,7 @@ type ExtendsProps = StateMap & typeof EffectHooks
 
 export const FormStep: React.FC<IVirtualBoxProps<IFormStep>> &
   ExtendsProps = createControllerBox<IFormStep>(
-  'step',
+  'antd-steps',
   ({
     form,
     schema,

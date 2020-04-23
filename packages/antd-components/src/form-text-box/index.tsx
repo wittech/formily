@@ -10,7 +10,7 @@ import styled from 'styled-components'
 const isV4 = /^4\./.test(version)
 
 export const FormTextBox = createControllerBox<IFormTextBox & ItemProps>(
-  'text-box',
+  'antd-text-box',
   styled(({ props, form, className, children }) => {
     const schema = new Schema(props)
     const mergeProps = schema.getExtendsComponentProps(false)
