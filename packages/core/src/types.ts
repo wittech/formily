@@ -243,8 +243,8 @@ export interface IFormState<FormProps = any> {
   editable: boolean | ((name: string) => boolean)
   errors: string[]
   warnings: string[]
-  values: {}
-  initialValues: {}
+  values: any
+  initialValues: any
   mounted: boolean
   unmounted: boolean
   props: FormProps
