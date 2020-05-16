@@ -28,13 +28,13 @@ const mapMomentValue = (props: any, fieldProps: any) => {
     if (isStr(value) && value) {
       props.value = moment(
         value,
-        showTime ? 'YYYY-MM-DD HH:mm:ss' : 'YYYY-MM-DD'
+        props.format ? props.format : (showTime ? 'YYYY-MM-DD HH:mm:ss' : 'YYYY-MM-DD')
       )
     } else if (isArr(value) && value.length) {
       props.value = value.map(
         item =>
           (item &&
-            moment(item, showTime ? 'YYYY-MM-DD HH:mm:ss' : 'YYYY-MM-DD')) ||
+            moment(item, props.format ? props.format : (showTime ? 'YYYY-MM-DD HH:mm:ss' : 'YYYY-MM-DD'))) ||
           ''
       )
     }
@@ -45,13 +45,13 @@ const mapMomentValue = (props: any, fieldProps: any) => {
 }
 
 export const DatePicker = connect<
-  'RangePicker' | 'MonthPicker' | 'YearPicker' | 'WeekPicker'
+  'RangePicker' | 'MonthPicker' | 'YearPicker' | 'WeekPicker' | 'QuarterPicker'
 >({
   getValueFromEvent(_, value) {
     const props = this.props || {}
     return transformMoment(
       value,
-      props.showTime ? 'YYYY-MM-DD HH:mm:ss' : 'YYYY-MM-DD'
+      props.format ? props.format : (props.showTime ? 'YYYY-MM-DD HH:mm:ss' : 'YYYY-MM-DD')
     )
   },
   getProps: compose(mapStyledProps, mapMomentValue),
@@ -72,6 +72,9 @@ DatePicker.RangePicker = connect({
 })(AntdDatePicker.RangePicker)
 
 DatePicker.MonthPicker = connect({
+  defaultProps: {
+    format: 'YYYY-MM'
+  },
   getValueFromEvent(_, value) {
     return transformMoment(value)
   },
@@ -94,6 +97,9 @@ DatePicker.WeekPicker = connect({
 })(AntdDatePicker.WeekPicker)
 
 DatePicker.YearPicker = connect({
+  defaultProps: {
+    format: 'YYYY'
+  },
   getValueFromEvent(_, value) {
     return transformMoment(value, 'YYYY')
   },
@@ -111,7 +117,13 @@ DatePicker.QuarterPicker = connect({
   getValueFromEvent(_, value) {
     return transformMoment(value, 'YYYY-\QQ')
   },
-  getProps: compose(mapStyledProps, mapMomentValue),
+  getProps: compose(mapStyledProps, props => {
+    if (isStr(props.value) && props.value) {
+      const parsed = props.value.match(/\D*(\d+)\D*(\d+)\D*/) || ['', '', '']
+      props.value = moment(parsed[1], 'YYYY').add((parsed[2] - 1) * 3, 'months')
+    }
+    return props
+  }),
   getComponent: mapTextComponent
 })(QuarterPicker)
 
