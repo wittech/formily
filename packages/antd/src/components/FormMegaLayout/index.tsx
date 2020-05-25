@@ -192,7 +192,7 @@ const MegaLayoutItem = (props) => {
   })
 }
 
-const FormMegaLayout = createVirtualBox('mega-layout', MegaLayout)
+const FormMegaLayout = createVirtualBox('antd-mega-layout', MegaLayout)
 
 export {
     MegaLayout,
