@@ -287,7 +287,8 @@ export function createForm(options: IFormCreatorOptions = {}) {
 
       if (initializedChanged) {
         heart.publish(LifeCycleTypes.ON_FIELD_INIT, field)
-        const isEmptyValue = !isValid(published.value)
+        const isEmptyValue =
+          !isValid(published.value) || isEmpty(published.value)
         const isEmptyInitialValue = !isValid(published.initialValue)
         if (isEmptyValue || isEmptyInitialValue) {
           field.setSourceState((state: IFieldState<FormilyCore.FieldProps>) => {
