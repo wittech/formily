@@ -27,7 +27,8 @@
   "dependencies": {
     "@formily/shared": "^1.1.6",
     "@formily/validator": "^1.1.6",
-    "immer": "^6.0.3"
+    "immer": "^6.0.3",
+    "lodash-es": "^4.17.15"
   },
   "publishConfig": {
     "access": "public"
