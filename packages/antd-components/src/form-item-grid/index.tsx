@@ -13,7 +13,7 @@ import { normalizeCol } from '../shared'
 
 export const FormItemGrid = createVirtualBox<
   React.PropsWithChildren<IFormItemGridProps & ItemProps & IItemProps>
->('grid', props => {
+>('antd-form-grid', props => {
   const {
     cols: rawCols,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

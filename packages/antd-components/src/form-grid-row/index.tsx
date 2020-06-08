@@ -7,7 +7,7 @@ import { FormItemProps as ItemProps } from 'antd/lib/form'
 import { IItemProps } from '../types'
 
 export const FormGridRow = createVirtualBox<RowProps & ItemProps & IItemProps>(
-  'grid-row',
+  'antd-form-grid-row',
   props => {
     const { title, label } = props
     const grids = <Row {...props}>{props.children}</Row>

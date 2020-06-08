@@ -5,7 +5,7 @@ import { CardProps } from 'antd/lib/card'
 import styled from 'styled-components'
 
 export const FormCard = createVirtualBox<CardProps>(
-  'card',
+  'antd-form-card',
   styled(({ children, className, ...props }) => {
     return (
       <Card className={className} size="small" {...props}>
