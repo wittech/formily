@@ -94,7 +94,10 @@ export const Field = createModel<IFieldState, IFieldStateProps>(
       mounted: false,
       unmounted: false,
       unmountRemoveValue: true,
-      props: {}
+      props: {},
+      //TODO:增加字段是否点击的状态
+      click: false,
+      clickArgs: undefined
     }
 
     constructor(props: IFieldStateProps) {

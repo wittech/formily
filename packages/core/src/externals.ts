@@ -36,6 +36,7 @@ import {
 import { createFormInternals } from './internals'
 import { Field, ARRAY_UNIQUE_TAG, tagArrayList } from './models/field'
 import { VirtualField } from './models/virtual-field'
+import {forIn, set} from 'lodash-es'
 
 export const createFormExternals = (
   internals: ReturnType<typeof createFormInternals>
@@ -153,6 +154,14 @@ export const createFormExternals = (
   function onFieldChange({ field, path }: { field: IField; path: FormPath }) {
     return (published: IFieldState) => {
       const { dirtys } = field
+      //TODO:增加点击事件处理
+      if (dirtys.click) {
+        heart.publish(LifeCycleTypes.ON_FIELD_CLICK, field)
+        field.setSourceState((state: IFieldState<FormilyCore.FieldProps>) => {
+          state.click = false
+        })
+      }
+
       if (dirtys.initialized) {
         heart.publish(LifeCycleTypes.ON_FIELD_INIT, field)
       }
@@ -488,18 +497,57 @@ export const createFormExternals = (
     callback?: (state: IFieldState<FormilyCore.FieldProps>) => void,
     silent?: boolean
   ) {
-    if (!isFn(callback)) return
+    //TODO:增加处理{key:value}对象的设置模式
+    let newCallback;
+    if (!isFn(callback)){
+      if(isObj(callback)){
+        newCallback = (state: IFieldState<FormilyCore.FieldProps>) => {
+          //循环传入的每一个属性并将其设置到state中去；
+          forIn(callback, (value, prop) => {
+            set(state, prop, value);
+          })
+        }
+      }
+      else{
+        return
+      }
+    }
+    else{
+      newCallback = callback;
+    }
+    // if (!isFn(callback)) return
     let matchCount = 0
     const pattern = FormPath.getPath(path)
     graph.select(pattern, field => {
       if (!isFormState(field)) {
-        field.setState(callback, silent)
+        field.setState(newCallback, silent)
       }
       matchCount++
     })
     if (matchCount === 0 || pattern.isWildMatchPattern) {
-      pushTaskQueue(pattern, callback)
+      pushTaskQueue(pattern, newCallback)
     }
+  }
+
+  //TODO:增加属性设置方法
+  function setFieldProps(path: FormPathPattern, value?: any, silent?: boolean) {
+    setFieldState(
+      path,
+      (state) => {
+        state.props['x-component-props'] = {
+          ...state.props['x-component-props'],
+          ...value,
+        };
+      },
+      silent,
+    );
+  }
+
+  //TODO:增加获取属性方法
+  function getFieldProps(path?: FormPathPattern) {
+    return getFieldState(path, state => {
+      return state.props['x-component-props']
+    })
   }
 
   function getFieldValue(path?: FormPathPattern) {
@@ -871,6 +919,13 @@ export const createFormExternals = (
           state.active = true
         })
       },
+      click(args: any[]) {
+        //TODO:增加点击事件及点击事件参数
+        field.setState((state: IFieldState<FormilyCore.FieldProps>) => {
+          state.click = true
+          state.clickArgs = args
+        })
+      },
       blur() {
         field.setState((state: IFieldState<FormilyCore.FieldProps>) => {
           state.active = false
@@ -974,6 +1029,9 @@ export const createFormExternals = (
     validate,
     setFormState,
     getFormState,
+    //TODO:增加新接口
+    setFieldProps,
+    getFieldProps,
     setFieldState,
     getFieldState,
     registerField,
