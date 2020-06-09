@@ -1,5 +1,5 @@
 import { useMemo, useEffect, useRef, useContext } from 'react'
-import { isFn, uid, merge } from '@formily/shared'
+import { isFn, merge } from '@formily/shared'
 import {
   IFieldState,
   IForm,
@@ -52,12 +52,12 @@ export const useField = (options: IFieldStateUIProps): IFieldHook => {
     field: IField
     unmounted: boolean
     subscriberId: number
-    uid: string
+    uid: Symbol
   }>({
     field: null,
     unmounted: false,
     subscriberId: null,
-    uid: ''
+    uid: null
   })
   const form = useContext<IForm>(FormContext)
   if (!form) {
@@ -79,13 +79,13 @@ export const useField = (options: IFieldStateUIProps): IFieldHook => {
               mutators.validate({ throwErrors: false })
             }
           }
-          if (!form.isHostRendering()) {
+         if (!form.isHostRendering()) {
             forceUpdate()
           }
         }
       }
     )
-    ref.current.uid = uid()
+    ref.current.uid = Symbol()
     initialized = true
     return extendMutators(form.createMutators(ref.current.field), options)
   }, [])
@@ -126,6 +126,7 @@ export const useField = (options: IFieldStateUIProps): IFieldHook => {
   }, [])
 
   const state = ref.current.field.getState()
+
   return {
     form,
     field: ref.current.field,
