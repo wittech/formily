@@ -47,6 +47,7 @@ import { message, notification } from 'antd';
 import { v4 as uuidv4 } from 'uuid';
 import { getIdCard } from '@/utils/idcard';
 import { Path } from "cool-path"
+import { history } from 'umi';
 
 export const createFormExternals = (
   internals: ReturnType<typeof createFormInternals>,
@@ -1118,6 +1119,10 @@ export const createFormExternals = (
     return getIdCard(val);
   }
 
+  function getHistory(){
+    return history;
+  }
+
   const formApi = {
     submit,
     reset,
@@ -1141,6 +1146,7 @@ export const createFormExternals = (
     closeNotification,
     guid,
     parseIdCard,
+    getHistory,
     //
     setFieldState,
     getFieldState,

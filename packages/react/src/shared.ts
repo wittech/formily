@@ -55,6 +55,7 @@ export const createFormActions = (): IFormActions => {
     'closeNotification',
     'guid',
     'parseIdCard',
+    'getHistory',
     //
     'getFormGraph',
     'setFormGraph',
@@ -98,6 +99,7 @@ export const createAsyncFormActions = (): IFormAsyncActions =>
     'closeNotification',
     'guid',
     'parseIdCard',
+    'getHistory',
     //
     'getFormGraph',
     'setFormGraph',
