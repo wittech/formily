@@ -2,7 +2,7 @@ import React from 'react'
 import classnames from 'classnames'
 import { Form } from 'antd'
 import { Layout, LayoutItem } from '@formily/react'
-import { createVirtualBox } from '@formily/react-schema-renderer'
+import { createVirtualBox, getRegistry } from '@formily/react-schema-renderer'
 import styled from 'styled-components'
 import { useDeepFormItem } from '../../context'
 import { normalizeCol, pickFormItemProps, pickNotFormItemProps } from '../../shared'
@@ -63,8 +63,8 @@ const MegaLayout = (props => {
 
     // 注意, labelCol/wrapperCol, labelWidth/wrapperWidth Layout只能透传下去
     // 自身的 labelCol/wrapperCol, labelWidth/wrapperWidth 必须通过其layoutProps来控制
-    
-    return <Layout        
+
+    return <Layout
         defaultSettings={{
             gutter: 20,
         }}
@@ -85,7 +85,7 @@ const MegaLayout = (props => {
               columns,
               contextColumns,
               isRoot,
-              isLayout: true,    
+              isLayout: true,
               responsive,
               size
             }
@@ -123,12 +123,12 @@ const MegaLayout = (props => {
             </StyledLayoutWrapper>
 
             // 嵌套布局
-            if (!props.grid && grid) {   
+            if (!props.grid && grid) {
               return <StyledLayoutNestWrapper nested {...{span, columns, contextColumns, context, responsive}}>
                 {ele}
               </StyledLayoutNestWrapper>
             }
-     
+
             return ele
         }}
     />
@@ -170,21 +170,24 @@ const MegaLayoutItem = (props) => {
           ...(componentProps.style || {}),
           width: '100%',
           flex: 1,
-        }       
+        }
       }
 
       if (size) {
-        componentProps.size = size 
+        componentProps.size = size
       }
 
-      if (isObjectField) {
+      //TODO:增加逻辑处理，仅容器型的object对象才处理这个逻辑，避免object字段必填信息不渲染
+      const { virtualFields } = getRegistry();
+      const xComponent = componentProps['x-component'];
+      if (isObjectField && virtualFields[xComponent]) {
         const objectFieldProps = {...megaProps}
         objectFieldProps.label = itemProps.label
-        return React.createElement(MegaLayout, objectFieldProps, 
+        return React.createElement(MegaLayout, objectFieldProps,
           (schemaChildren ? children(schemaComponent) : children(componentProps)))
       }
 
-      return React.createElement(StyledLayoutItem, itemProps, 
+      return React.createElement(StyledLayoutItem, itemProps,
         (schemaChildren ? children(schemaComponent) : children(componentProps)))
     }
 
