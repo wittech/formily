@@ -1137,6 +1137,10 @@ export const createFormExternals = (
     return history;
   }
 
+  function put(url: string, options: any) {
+    return request.put(url, options);
+  }
+
   const formApi = {
     submit,
     reset,
@@ -1152,6 +1156,7 @@ export const createFormExternals = (
     emit,
     post,
     get,
+    put,
     configMessage,
     showMessage,
     closeMessage,
