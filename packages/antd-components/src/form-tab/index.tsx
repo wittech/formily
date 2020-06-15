@@ -36,7 +36,7 @@ const parseTabItems = (items: any, hiddenKeys?: string[]) => {
         return buf
       }
     }
-    if (schema.getExtendsComponent() === 'antd-tabpane') {
+    if (schema.getExtendsComponent() === 'antd-tabs-pane') {
       return buf.concat({
         props: schema.getExtendsComponentProps(),
         schema,
@@ -167,7 +167,7 @@ export const FormTab: React.FC<IVirtualBoxProps<IFormTab>> &
 ) as any
 
 FormTab.TabPane = createControllerBox<TabPaneProps>(
-  'antd-tabpane',
+  'antd-tabs-pane',
   ({ children }) => {
     return <Fragment>{children}</Fragment>
   }

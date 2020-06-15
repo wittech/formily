@@ -42,7 +42,7 @@ export const Submit = ({ showLoading, onSubmit, ...props }: ISubmitProps) => {
             {...props}
             loading={showLoading ? state.submitting : undefined}
           >
-            {props.children || '提交'}
+            {props.children || '保存'}
           </Button>
         )
       }}

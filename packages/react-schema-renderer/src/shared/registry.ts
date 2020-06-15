@@ -58,7 +58,7 @@ export function registerFormField(
 ) {
   if (
     name &&
-    (isFn(component) || typeof component.styledComponentId === 'string')
+    (isFn(component) || typeof component.styledComponentId === 'string' || component.displayName === 'LoadableComponent')
   ) {
     name = lowercase(name)
     if (registry.fields[name]) {

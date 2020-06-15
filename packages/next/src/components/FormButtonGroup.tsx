@@ -143,6 +143,7 @@ export const FormButtonGroup: React.FC<IFormButtonGroupProps> = styled(
   .button-group {
     .inline {
       display: inline-block;
+      width: 100%;
       .inline-view {
         & > * {
           margin-right: 10px;
