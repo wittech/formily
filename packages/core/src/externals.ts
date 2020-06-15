@@ -1087,14 +1087,6 @@ export const createFormExternals = (
     $bus.emit(path, data);
   }
 
-  function post(url: string, options: any) {
-    return request.post(url, options);
-  }
-
-  function get(url: string, options: any) {
-    return request.get(url, options);
-  }
-
   function configMessage(options: any) {
     message.config(options);
   }
@@ -1137,8 +1129,20 @@ export const createFormExternals = (
     return history;
   }
 
+  function post(url: string, options: any) {
+    return request.post(url, options);
+  }
+
+  function get(url: string, options: any) {
+    return request.get(url, options);
+  }
+
   function put(url: string, options: any) {
     return request.put(url, options);
+  }
+
+  function del(url: string, options: any) {
+    return request.delete(url, options);
   }
 
   const formApi = {
@@ -1157,6 +1161,7 @@ export const createFormExternals = (
     post,
     get,
     put,
+    del,
     configMessage,
     showMessage,
     closeMessage,
