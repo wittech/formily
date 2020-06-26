@@ -16,7 +16,7 @@ import {
   isFieldState,
   isVirtualFieldState,
   IFormExtendedValidateFieldOptions,
-} from './types';
+} from './types'
 import {
   FormPath,
   FormPathPattern,
@@ -31,25 +31,26 @@ import {
   toArr,
   isNum,
   isEqual,
-} from '@formily/shared';
-import { createFormInternals } from './internals';
+} from '@formily/shared'
+import { createFormInternals } from './internals'
 import {
   Field,
   ARRAY_UNIQUE_TAG,
   tagArrayList,
   parseArrayTags,
-} from './models/field';
-import { VirtualField } from './models/virtual-field';
-import { forIn, set, isObject } from 'lodash-es';
-import request from '@/utils/request';
-import { message, notification } from 'antd';
-import { v4 as uuidv4 } from 'uuid';
-import { getIdCard } from '@/utils/idcard';
-import { Path } from "cool-path"
-import { history } from 'umi';
+} from './models/field'
+import { VirtualField } from './models/virtual-field'
+import { forIn, set, isObject, isEmpty } from 'lodash-es'
+import request from '@/utils/request'
+import { message, notification } from 'antd'
+import { v4 as uuidv4 } from 'uuid'
+import { getIdCard } from '@/utils/idcard'
+import { Path } from 'cool-path'
+import { history } from 'umi'
+import qs from 'qs'
 
 export const createFormExternals = (
-  internals: ReturnType<typeof createFormInternals>,
+  internals: ReturnType<typeof createFormInternals>
 ) => {
   const {
     options,
@@ -74,116 +75,116 @@ export const createFormExternals = (
     syncFormMessages,
     batchRunTaskQueue,
     pushTaskQueue,
-  } = internals;
+  } = internals
 
   function eachArrayExchanges(
     prevState: IFieldState,
     currentState: IFieldState,
-    eacher: (prevPath: string, currentPath: string) => void,
+    eacher: (prevPath: string, currentPath: string) => void
   ) {
-    const exchanged = {};
+    const exchanged = {}
     currentState.value?.forEach?.((item: any, index: number) => {
-      const prev = prevState.value?.[index]?.[ARRAY_UNIQUE_TAG];
-      const current = item?.[ARRAY_UNIQUE_TAG];
-      if (prev === current) return;
+      const prev = prevState.value?.[index]?.[ARRAY_UNIQUE_TAG]
+      const current = item?.[ARRAY_UNIQUE_TAG]
+      if (prev === current) return
       if (prev === undefined || current === undefined) {
-        return;
+        return
       }
       if (currentState.value?.length === prevState.value?.length) {
-        if (exchanged[prev] || exchanged[current]) return;
-        exchanged[prev] = true;
-        exchanged[current] = true;
+        if (exchanged[prev] || exchanged[current]) return
+        exchanged[prev] = true
+        exchanged[current] = true
       }
-      eacher(prev, current);
-    });
+      eacher(prev, current)
+    })
   }
 
   function calculateMovePath(name: string, replace: number) {
-    const segments = [];
-    const indexes = [];
+    const segments = []
+    const indexes = []
     FormPath.parse(name).forEach((key: string) => {
       if (/^\d+$/.test(key)) {
-        indexes.push(segments.length);
+        indexes.push(segments.length)
       }
-      segments.push(key);
-    });
+      segments.push(key)
+    })
     if (indexes.length) {
-      segments[indexes[indexes.length - 1]] = replace;
+      segments[indexes[indexes.length - 1]] = replace
     }
-    return segments.join('.');
+    return segments.join('.')
   }
 
   function getExchangeState(state: IFieldState) {
     const results = {
       ...state,
-    };
-    delete results.name;
-    delete results.path;
+    }
+    delete results.name
+    delete results.path
     if (
       results.visible === false ||
       results.unmounted === true ||
       results.mounted === false
     ) {
-      delete results.value;
-      delete results.values;
+      delete results.value
+      delete results.values
     }
-    return results;
+    return results
   }
 
   function calculateRemovedTags(prevTags: string[], currentTags: string[]) {
-    if (prevTags.length <= currentTags.length) return [];
+    if (prevTags.length <= currentTags.length) return []
     env.realRemoveTags = prevTags.reduce((buf, tag) => {
-      return currentTags.includes(tag) ? buf : buf.concat(tag);
-    }, []);
-    return prevTags.slice(currentTags.length - prevTags.length);
+      return currentTags.includes(tag) ? buf : buf.concat(tag)
+    }, [])
+    return prevTags.slice(currentTags.length - prevTags.length)
   }
 
   function removeArrayNodes(tags: string[]) {
     tags.forEach((tag) => {
       graph.select(calculateMathTag(tag), (node: IField) => {
-        graph.remove(node.state.path);
-      });
-    });
+        graph.remove(node.state.path)
+      })
+    })
   }
 
   function calculateMathTag(tag: FormPathPattern) {
-    return `*(${tag},${tag}.*)`;
+    return `*(${tag},${tag}.*)`
   }
 
   function exchangeState(
     prevPattern: FormPathPattern,
-    currentPattern: FormPathPattern,
+    currentPattern: FormPathPattern
   ) {
-    const prevStateMap = {};
+    const prevStateMap = {}
     const prevIndex = FormPath.transform(prevPattern, /\d+/, (...args) => {
-      return Number(args[args.length - 1]);
-    });
+      return Number(args[args.length - 1])
+    })
     const currentIndex = FormPath.transform(
       currentPattern,
       /\d+/,
       (...args) => {
-        return Number(args[args.length - 1]);
-      },
-    );
+        return Number(args[args.length - 1])
+      }
+    )
     graph.select(calculateMathTag(prevPattern), (field: IField) => {
-      const prevState = field.getState(getExchangeState);
-      const currentPath = calculateMovePath(field.state.path, currentIndex);
-      const currentState = getFieldState(currentPath, getExchangeState);
-      prevStateMap[field.state.name] = prevState;
+      const prevState = field.getState(getExchangeState)
+      const currentPath = calculateMovePath(field.state.path, currentIndex)
+      const currentState = getFieldState(currentPath, getExchangeState)
+      prevStateMap[field.state.name] = prevState
       field.setSourceState((state) => {
-        Object.assign(state, currentState);
-      });
-    });
+        Object.assign(state, currentState)
+      })
+    })
     graph.select(calculateMathTag(currentPattern), (field: IField) => {
-      const { path } = field.getState();
-      const prevPath = calculateMovePath(path, prevIndex);
-      const prevState = prevStateMap[prevPath];
+      const { path } = field.getState()
+      const prevPath = calculateMovePath(path, prevIndex)
+      const prevState = prevStateMap[prevPath]
       if (prevState) {
         field.setSourceState((state) => {
-          Object.assign(state, prevState);
-        });
+          Object.assign(state, prevState)
+        })
       }
-    });
+    })
   }
 
   function eachParentFields(field: IField, callback: (field: IField) => void) {
@@ -196,43 +197,43 @@ export const createFormExternals = (
 
   function onFieldChange({ field, path }: { field: IField; path: FormPath }) {
     return (published: IFieldState) => {
-      const { dirtys } = field;
+      const { dirtys } = field
       //TODO:增加点击事件处理
       if (dirtys.click) {
-        heart.publish(LifeCycleTypes.ON_FIELD_CLICK, field);
+        heart.publish(LifeCycleTypes.ON_FIELD_CLICK, field)
         field.setSourceState((state: IFieldState<FormilyCore.FieldProps>) => {
-          state.click = false;
-        });
+          state.click = false
+        })
       }
 
       if (dirtys.initialized) {
-        heart.publish(LifeCycleTypes.ON_FIELD_INIT, field);
+        heart.publish(LifeCycleTypes.ON_FIELD_INIT, field)
       }
       if (dirtys.value) {
-        const isArrayList = /array/gi.test(published.dataType);
+        const isArrayList = /array/gi.test(published.dataType)
         if (isArrayList) {
-          const prevTags = parseArrayTags(field.prevState.value);
-          const currentTags = parseArrayTags(published.value);
+          const prevTags = parseArrayTags(field.prevState.value)
+          const currentTags = parseArrayTags(published.value)
           if (!isEqual(prevTags, currentTags)) {
-            const removedTags = calculateRemovedTags(prevTags, currentTags);
-            eachArrayExchanges(field.prevState, published, exchangeState);
-            removeArrayNodes(removedTags);
+            const removedTags = calculateRemovedTags(prevTags, currentTags)
+            eachArrayExchanges(field.prevState, published, exchangeState)
+            removeArrayNodes(removedTags)
             //重置TAG，保证下次状态交换是没问题的
             setFormValuesIn(
               field.state.name,
               tagArrayList(field.state.value, field.state.name, true),
-              true,
-            );
+              true
+            )
           }
         }
         heart.publish(LifeCycleTypes.ON_FIELD_VALUE_CHANGE, field)
-        eachParentFields(field, node => {
+        eachParentFields(field, (node) => {
           heart.publish(LifeCycleTypes.ON_FIELD_VALUE_CHANGE, node)
         })
       }
       if (dirtys.initialValue) {
         heart.publish(LifeCycleTypes.ON_FIELD_INITIAL_VALUE_CHANGE, field)
-        eachParentFields(field, node => {
+        eachParentFields(field, (node) => {
           heart.publish(LifeCycleTypes.ON_FIELD_INITIAL_VALUE_CHANGE, node)
         })
       }
@@ -240,31 +241,31 @@ export const createFormExternals = (
         graph.eachChildren(path, (childState) => {
           childState.setState((state: IFieldState<FormilyCore.FieldProps>) => {
             if (dirtys.visible) {
-              updateRecoverableShownState(published, state, 'visible');
+              updateRecoverableShownState(published, state, 'visible')
             }
             if (dirtys.display) {
-              updateRecoverableShownState(published, state, 'display');
+              updateRecoverableShownState(published, state, 'display')
             }
-          }, true);
-        });
+          }, true)
+        })
       }
       if (dirtys.unmounted && published.unmounted) {
         afterUnmount(() => {
-          env.realRemoveTags = [];
-        });
-        heart.publish(LifeCycleTypes.ON_FIELD_UNMOUNT, field);
+          env.realRemoveTags = []
+        })
+        heart.publish(LifeCycleTypes.ON_FIELD_UNMOUNT, field)
       }
 
       if (dirtys.mounted && published.mounted) {
-        heart.publish(LifeCycleTypes.ON_FIELD_MOUNT, field);
+        heart.publish(LifeCycleTypes.ON_FIELD_MOUNT, field)
       }
 
       if (dirtys.errors) {
-        syncFormMessages('errors', published);
+        syncFormMessages('errors', published)
       }
 
       if (dirtys.warnings) {
-        syncFormMessages('warnings', published);
+        syncFormMessages('warnings', published)
       }
 
       if (
@@ -274,24 +275,24 @@ export const createFormExternals = (
         dirtys.editable
       ) {
         //fix #682
-        resetFormMessages(published);
+        resetFormMessages(published)
       }
 
-      heart.publish(LifeCycleTypes.ON_FIELD_CHANGE, field);
-    };
+      heart.publish(LifeCycleTypes.ON_FIELD_CHANGE, field)
+    }
   }
 
   function onVirtualFieldChange({
     field,
     path,
   }: {
-    field: IVirtualField;
-    path: FormPath;
+    field: IVirtualField
+    path: FormPath
   }) {
     return (published: IVirtualFieldState) => {
-      const { dirtys } = field;
+      const { dirtys } = field
       if (dirtys.initialized) {
-        heart.publish(LifeCycleTypes.ON_FIELD_INIT, field);
+        heart.publish(LifeCycleTypes.ON_FIELD_INIT, field)
       }
 
       if (dirtys.visible || dirtys.display) {
@@ -299,27 +300,27 @@ export const createFormExternals = (
           childState.setState(
             (state: IVirtualFieldState<FormilyCore.VirtualFieldProps>) => {
               if (dirtys.visible) {
-                updateRecoverableShownState(published, state, 'visible');
+                updateRecoverableShownState(published, state, 'visible')
               }
               if (dirtys.display) {
-                updateRecoverableShownState(published, state, 'display');
+                updateRecoverableShownState(published, state, 'display')
               }
             },
-            true,
-          );
-        });
+            true
+          )
+        })
       }
       if (dirtys.unmounted && published.unmounted) {
         afterUnmount(() => {
-          env.realRemoveTags = [];
-        });
-        heart.publish(LifeCycleTypes.ON_FIELD_UNMOUNT, field);
+          env.realRemoveTags = []
+        })
+        heart.publish(LifeCycleTypes.ON_FIELD_UNMOUNT, field)
       }
       if (dirtys.mounted && published.mounted) {
-        heart.publish(LifeCycleTypes.ON_FIELD_MOUNT, field);
+        heart.publish(LifeCycleTypes.ON_FIELD_MOUNT, field)
       }
-      heart.publish(LifeCycleTypes.ON_FIELD_CHANGE, field);
-    };
+      heart.publish(LifeCycleTypes.ON_FIELD_CHANGE, field)
+    }
   }
 
   function registerField({
@@ -337,9 +338,9 @@ export const createFormExternals = (
     unmountRemoveValue,
     props,
   }: IFieldRegistryProps<FormilyCore.FieldProps>) {
-    let field: IField;
-    const nodePath = FormPath.parse(path || name);
-    const dataPath = getDataPath(nodePath);
+    let field: IField
+    const nodePath = FormPath.parse(path || name)
+    const dataPath = getDataPath(nodePath)
     const createField = () => {
       const field = new Field({
         nodePath,
@@ -347,40 +348,40 @@ export const createFormExternals = (
         computeState,
         dataType,
         getValue(name) {
-          return getFormValuesIn(name);
+          return getFormValuesIn(name)
         },
         needRemoveValue(path) {
-          if (!env.realRemoveTags?.length) return true;
+          if (!env.realRemoveTags?.length) return true
           return env.realRemoveTags.every((tag) => {
-            return !FormPath.parse(calculateMathTag(tag)).match(path);
-          });
+            return !FormPath.parse(calculateMathTag(tag)).match(path)
+          })
         },
         setValue(name, value) {
-          setFormValuesIn(name, value);
+          setFormValuesIn(name, value)
         },
         setInitialValue(name, value) {
-          setFormInitialValuesIn(name, value);
+          setFormInitialValuesIn(name, value)
         },
         removeValue(name) {
-          if (!graph.get(nodePath)) return;
-          deleteFormValuesIn(name);
+          if (!graph.get(nodePath)) return
+          deleteFormValuesIn(name)
         },
         getInitialValue(name) {
-          return getFormInitialValuesIn(name);
+          return getFormInitialValuesIn(name)
         },
         unControlledValueChanged() {
           nextTick(() => {
             heart.publish(LifeCycleTypes.ON_FIELD_VALUE_CHANGE, field)
             heart.publish(LifeCycleTypes.ON_FIELD_CHANGE, field)
           })
-        }
+        },
       })
       field.subscription = {
         notify: onFieldChange({ field, path: nodePath }),
-      };
-      heart.publish(LifeCycleTypes.ON_FIELD_WILL_INIT, field);
+      }
+      heart.publish(LifeCycleTypes.ON_FIELD_WILL_INIT, field)
 
-      graph.appendNode(nodePath, field);
+      graph.appendNode(nodePath, field)
 
       field.batch(() => {
         field.setState((state: IFieldState<FormilyCore.FieldProps>) => {
@@ -422,7 +423,7 @@ export const createFormExternals = (
         batchRunTaskQueue(field, nodePath)
       })
 
-      validator.register(nodePath, validate => {
+      validator.register(nodePath, (validate) => {
         const {
           value,
           rules,
@@ -432,7 +433,7 @@ export const createFormExternals = (
           visible,
           unmounted,
           display,
-        } = field.getState();
+        } = field.getState()
         // 不需要校验的情况有: 非编辑态(editable)，已销毁(unmounted), 逻辑上不可见(visible)
         if (
           editable === false ||
@@ -442,38 +443,38 @@ export const createFormExternals = (
           (field as any).disabledValidate ||
           (rules.length === 0 && errors.length === 0 && warnings.length === 0)
         )
-          return validate(value, []);
-        clearTimeout((field as any).validateTimer);
-        (field as any).validateTimer = setTimeout(() => {
+          return validate(value, [])
+        clearTimeout((field as any).validateTimer)
+        ;(field as any).validateTimer = setTimeout(() => {
           field.setState((state) => {
-            state.validating = true;
-          });
-        }, 60);
-        heart.publish(LifeCycleTypes.ON_FIELD_VALIDATE_START, field);
+            state.validating = true
+          })
+        }, 60)
+        heart.publish(LifeCycleTypes.ON_FIELD_VALIDATE_START, field)
         return validate(value, rules).then(({ errors, warnings }) => {
-          clearTimeout((field as any).validateTimer);
+          clearTimeout((field as any).validateTimer)
           return new Promise((resolve) => {
             field.setState((state: IFieldState<FormilyCore.FieldProps>) => {
-              state.validating = false;
-              state.ruleErrors = errors;
-              state.ruleWarnings = warnings;
-            });
-            heart.publish(LifeCycleTypes.ON_FIELD_VALIDATE_END, field);
+              state.validating = false
+              state.ruleErrors = errors
+              state.ruleWarnings = warnings
+            })
+            heart.publish(LifeCycleTypes.ON_FIELD_VALIDATE_END, field)
             resolve({
               errors,
               warnings,
-            });
-          });
-        });
-      });
-      return field;
-    };
-    if (graph.exist(nodePath)) {
-      field = graph.get(nodePath);
-    } else {
-      field = createField();
+            })
+          })
+        })
+      })
+      return field
     }
-    return field;
+    if (graph.exist(nodePath)) {
+      field = graph.get(nodePath)
+    } else {
+      field = createField()
+    }
+    return field
   }
 
   function registerVirtualField({
@@ -484,21 +485,21 @@ export const createFormExternals = (
     computeState,
     props,
   }: IVirtualFieldRegistryProps<FormilyCore.VirtualFieldProps>) {
-    const nodePath = FormPath.parse(path || name);
-    const dataPath = getDataPath(nodePath);
-    let field: IVirtualField;
+    const nodePath = FormPath.parse(path || name)
+    const dataPath = getDataPath(nodePath)
+    let field: IVirtualField
     const createField = () => {
       const field = new VirtualField({
         nodePath,
         dataPath,
         computeState,
-      });
+      })
       field.subscription = {
         notify: onVirtualFieldChange({ field, path: nodePath }),
-      };
-      heart.publish(LifeCycleTypes.ON_FIELD_WILL_INIT, field);
+      }
+      heart.publish(LifeCycleTypes.ON_FIELD_WILL_INIT, field)
 
-      graph.appendNode(nodePath, field);
+      graph.appendNode(nodePath, field)
 
       field.batch(() => {
         field.setState(
@@ -519,53 +520,53 @@ export const createFormExternals = (
       return field
     }
     if (graph.exist(nodePath)) {
-      field = graph.get(nodePath);
+      field = graph.get(nodePath)
     } else {
-      field = createField();
+      field = createField()
     }
-    return field;
+    return field
   }
 
   function getFieldState(
     path: FormPathPattern,
-    callback?: (state: IFieldState<FormilyCore.FieldProps>) => any,
+    callback?: (state: IFieldState<FormilyCore.FieldProps>) => any
   ) {
-    const field = graph.select(path);
-    return field && field.getState(callback);
+    const field = graph.select(path)
+    return field && field.getState(callback)
   }
 
   function setFieldState(
     path: FormPathPattern,
     callback?: (state: IFieldState<FormilyCore.FieldProps>) => void,
-    silent?: boolean,
+    silent?: boolean
   ) {
     //TODO:增加处理{key:value}对象的设置模式
-    let newCallback;
+    let newCallback
     if (!isFn(callback)) {
       if (isObject(callback)) {
         newCallback = (state: IFieldState<FormilyCore.FieldProps>) => {
           //循环传入的每一个属性并将其设置到state中去；
           forIn(callback, (value, prop) => {
-            set(state, prop, value);
-          });
-        };
+            set(state, prop, value)
+          })
+        }
       } else {
-        return;
+        return
       }
     } else {
-      newCallback = callback;
+      newCallback = callback
     }
     // if (!isFn(callback)) return
-    let matchCount = 0;
-    const pattern = FormPath.getPath(path);
+    let matchCount = 0
+    const pattern = FormPath.getPath(path)
     graph.select(pattern, (field) => {
       if (!isFormState(field)) {
-        field.setState(newCallback, silent);
+        field.setState(newCallback, silent)
       }
-      matchCount++;
-    });
+      matchCount++
+    })
     if (matchCount === 0 || pattern.isWildMatchPattern) {
-      pushTaskQueue(pattern, newCallback);
+      pushTaskQueue(pattern, newCallback)
     }
   }
 
@@ -577,72 +578,72 @@ export const createFormExternals = (
         state.props['x-component-props'] = {
           ...state.props['x-component-props'],
           ...value,
-        };
+        }
       },
-      silent,
-    );
+      silent
+    )
   }
 
   //TODO:增加获取属性方法
   function getFieldProps(path?: FormPathPattern) {
     return getFieldState(path, (state) => {
-      return state.props['x-component-props'];
-    });
+      return state.props['x-component-props']
+    })
   }
 
   function getFieldValue(path?: FormPathPattern) {
     return getFieldState(path, (state) => {
-      return state.value;
-    });
+      return state.value
+    })
   }
 
   function setFieldValue(path: FormPathPattern, value?: any, silent?: boolean) {
     setFieldState(
       path,
       (state) => {
-        state.value = value;
+        state.value = value
       },
-      silent,
-    );
+      silent
+    )
   }
 
   function getFieldInitialValue(path?: FormPathPattern) {
     return getFieldState(path, (state) => {
-      return state.initialValue;
-    });
+      return state.initialValue
+    })
   }
 
   function setFieldInitialValue(
     path?: FormPathPattern,
     value?: any,
-    silent?: boolean,
+    silent?: boolean
   ) {
     setFieldState(
       path,
       (state) => {
-        state.initialValue = value;
+        state.initialValue = value
       },
-      silent,
-    );
+      silent
+    )
   }
 
   function getFormState(callback?: (state: IFormState) => any) {
-    return form.getState(callback);
+    return form.getState(callback)
   }
 
   function setFormState(
     callback?: (state: IFormState) => any,
-    silent?: boolean,
+    silent?: boolean
   ) {
     hostUpdate(() => {
-      form.setState(callback, silent);
-    });
+      form.setState(callback, silent)
+    })
   }
 
   function getFormGraph() {
     return graph.map((node) => {
-      return node.getState();
-    });
+      return node.getState()
+    })
   }
 
   function setFormGraph(nodes: { [key: string]: any }) {
@@ -652,122 +653,122 @@ export const createFormExternals = (
         node:
           | IFieldState<FormilyCore.FieldProps>
           | IVirtualFieldState<FormilyCore.VirtualFieldProps>,
-        key,
+        key
       ) => {
-        let nodeState: any;
+        let nodeState: any
         if (graph.exist(key)) {
-          nodeState = graph.get(key);
+          nodeState = graph.get(key)
           nodeState.setSourceState((state) => {
-            Object.assign(state, node);
-          });
+            Object.assign(state, node)
+          })
         } else {
           if (node.displayName === 'VirtualFieldState') {
             nodeState = registerVirtualField({
               path: key,
-            });
+            })
             nodeState.setSourceState((state) => {
-              Object.assign(state, node);
-            });
+              Object.assign(state, node)
+            })
           } else if (node.displayName === 'FieldState') {
             nodeState = registerField({
               path: key,
-            });
+            })
             nodeState.setSourceState((state) => {
-              Object.assign(state, node);
-            });
+              Object.assign(state, node)
+            })
           }
         }
         if (nodeState) {
-          nodeState.notify(form.getState());
+          nodeState.notify(form.getState())
         }
-      },
-    );
+      }
+    )
   }
 
   function subscribe(callback?: FormHeartSubscriber) {
-    return heart.subscribe(callback);
+    return heart.subscribe(callback)
   }
 
   function unsubscribe(id: number) {
-    heart.unsubscribe(id);
+    heart.unsubscribe(id)
   }
 
   function notify(type: string, payload: any) {
-    heart.publish(type, payload);
+    heart.publish(type, payload)
   }
 
   async function submit(
-    onSubmit?: (values: IFormState['values']) => any | Promise<any>,
+    onSubmit?: (values: IFormState['values']) => any | Promise<any>
   ): Promise<IFormSubmitResult> {
     // 重复提交，返回前一次的promise
-    if (form.getState((state) => state.submitting)) return env.submittingTask;
-    heart.publish(LifeCycleTypes.ON_FORM_SUBMIT_START, form);
-    onSubmit = onSubmit || options.onSubmit;
+    if (form.getState((state) => state.submitting)) return env.submittingTask
+    heart.publish(LifeCycleTypes.ON_FORM_SUBMIT_START, form)
+    onSubmit = onSubmit || options.onSubmit
     form.setState((state) => {
-      state.submitting = true;
-    });
+      state.submitting = true
+    })
 
     env.submittingTask = async () => {
       // 增加onFormSubmitValidateStart来明确submit引起的校验开始了
-      heart.publish(LifeCycleTypes.ON_FORM_SUBMIT_VALIDATE_START, form);
-      await validate('', { throwErrors: false, hostRendering: true });
+      heart.publish(LifeCycleTypes.ON_FORM_SUBMIT_VALIDATE_START, form)
+      await validate('', { throwErrors: false, hostRendering: true })
       const validated = form.getState((state) => ({
         errors: state.errors,
         warnings: state.warnings,
-      }));
-      const { errors } = validated;
+      }))
+      const { errors } = validated
       // 校验失败
       if (errors.length) {
         // 由于校验失败导致submit退出
         form.setState((state) => {
-          state.submitting = false;
-        });
+          state.submitting = false
+        })
 
         // 增加onFormSubmitValidateFailed来明确结束submit的类型
-        heart.publish(LifeCycleTypes.ON_FORM_SUBMIT_VALIDATE_FAILED, form);
-        heart.publish(LifeCycleTypes.ON_FORM_SUBMIT_END, form);
+        heart.publish(LifeCycleTypes.ON_FORM_SUBMIT_VALIDATE_FAILED, form)
+        heart.publish(LifeCycleTypes.ON_FORM_SUBMIT_END, form)
         if (isFn(options.onValidateFailed) && !form.state.unmounted) {
-          options.onValidateFailed(validated);
+          options.onValidateFailed(validated)
         }
 
-        throw errors;
+        throw errors
       }
 
       // 增加onFormSubmitValidateSucces来明确submit引起的校验最终的结果
-      heart.publish(LifeCycleTypes.ON_FORM_SUBMIT_VALIDATE_SUCCESS, form);
+      heart.publish(LifeCycleTypes.ON_FORM_SUBMIT_VALIDATE_SUCCESS, form)
 
-      heart.publish(LifeCycleTypes.ON_FORM_SUBMIT, form);
+      heart.publish(LifeCycleTypes.ON_FORM_SUBMIT, form)
 
-      let payload: any;
-      const values = form.getState((state) => clone(state.values));
+      let payload: any
+      const values = form.getState((state) => clone(state.values))
       if (isFn(onSubmit) && !form.state.unmounted) {
         try {
-          payload = await Promise.resolve(onSubmit(values));
-          heart.publish(LifeCycleTypes.ON_FORM_ON_SUBMIT_SUCCESS, payload);
+          payload = await Promise.resolve(onSubmit(values))
+          heart.publish(LifeCycleTypes.ON_FORM_ON_SUBMIT_SUCCESS, payload)
         } catch (e) {
-          heart.publish(LifeCycleTypes.ON_FORM_ON_SUBMIT_FAILED, e);
+          heart.publish(LifeCycleTypes.ON_FORM_ON_SUBMIT_FAILED, e)
           new Promise(() => {
-            throw e;
-          });
+            throw e
+          })
         }
       }
 
       form.setState((state) => {
-        state.submitting = false;
-      });
-      heart.publish(LifeCycleTypes.ON_FORM_SUBMIT_END, form);
+        state.submitting = false
+      })
+      heart.publish(LifeCycleTypes.ON_FORM_SUBMIT_END, form)
       return {
         values,
         validated,
         payload,
-      };
-    };
+      }
+    }
 
-    return env.submittingTask();
+    return env.submittingTask()
   }
 
   async function reset(
-    props: IFormResetOptions = {},
+    props: IFormResetOptions = {}
   ): Promise<void | IFormValidateResult> {
     props = defaults(
       {
@@ -776,19 +777,19 @@ export const createFormExternals = (
         validate: true,
         clearInitialValue: false,
       },
-      props,
-    );
+      props
+    )
     hostUpdate(() => {
       graph.eachChildren('', props.selector, (field: IField) => {
-        (field as any).disabledValidate = true;
+        ;(field as any).disabledValidate = true
         field.setState((state: IFieldState<FormilyCore.FieldProps>) => {
-          state.modified = false;
-          state.ruleErrors = [];
-          state.ruleWarnings = [];
-          state.effectErrors = [];
-          state.effectWarnings = [];
+          state.modified = false
+          state.ruleErrors = []
+          state.ruleWarnings = []
+          state.effectErrors = []
+          state.effectWarnings = []
           if (props.clearInitialValue) {
-            state.initialValue = undefined;
+            state.initialValue = undefined
           }
           // forceClear仅对设置initialValues的情况下有意义
           if (props.forceClear || !isValid(state.initialValue)) {
@@ -800,65 +801,65 @@ export const createFormExternals = (
               state.value = undefined
             }
           } else {
-            const value = clone(state.initialValue);
+            const value = clone(state.initialValue)
             if (isArr(state.value)) {
               if (isArr(value)) {
-                state.value = value;
+                state.value = value
               } else {
-                state.value = [];
+                state.value = []
               }
             } else if (isPlainObj(state.value)) {
               if (isPlainObj(value)) {
-                state.value = value;
+                state.value = value
               } else {
-                state.value = {};
+                state.value = {}
               }
             } else {
-              state.value = value;
+              state.value = value
             }
           }
-        });
-        (field as any).disabledValidate = false;
-      });
-    });
+        })
+        ;(field as any).disabledValidate = false
+      })
+    })
     if (isFn(options.onReset) && !form.state.unmounted) {
-      options.onReset();
+      options.onReset()
     }
-    heart.publish(LifeCycleTypes.ON_FORM_RESET, form);
-    let validateResult: void | IFormValidateResult;
+    heart.publish(LifeCycleTypes.ON_FORM_RESET, form)
+    let validateResult: void | IFormValidateResult
     if (props.validate) {
-      validateResult = await validate(props.selector, { throwErrors: false });
+      validateResult = await validate(props.selector, { throwErrors: false })
     }
 
-    return validateResult;
+    return validateResult
   }
 
   async function validate(
     path?: FormPathPattern,
-    opts?: IFormExtendedValidateFieldOptions,
+    opts?: IFormExtendedValidateFieldOptions
   ): Promise<IFormValidateResult> {
-    const { throwErrors = true, hostRendering } = opts || {};
+    const { throwErrors = true, hostRendering } = opts || {}
     if (!form.getState((state) => state.validating)) {
       form.setSourceState((state) => {
-        state.validating = true;
-      });
+        state.validating = true
+      })
       // 渲染优化
-      clearTimeout(env.validateTimer);
+      clearTimeout(env.validateTimer)
       env.validateTimer = setTimeout(() => {
-        form.notify();
-      }, 60);
+        form.notify()
+      }, 60)
     }
-    heart.publish(LifeCycleTypes.ON_FORM_VALIDATE_START, form);
-    if (graph.size > 100 && hostRendering) env.hostRendering = true;
-    const payload = await validator.validate(path, opts);
-    clearTimeout(env.validateTimer);
+    heart.publish(LifeCycleTypes.ON_FORM_VALIDATE_START, form)
+    if (graph.size > 100 && hostRendering) env.hostRendering = true
+    const payload = await validator.validate(path, opts)
+    clearTimeout(env.validateTimer)
     form.setState((state) => {
-      state.validating = false;
-    });
-    heart.publish(LifeCycleTypes.ON_FORM_VALIDATE_END, form);
+      state.validating = false
+    })
+    heart.publish(LifeCycleTypes.ON_FORM_VALIDATE_END, form)
     if (graph.size > 100 && hostRendering) {
-      heart.publish(LifeCycleTypes.ON_FORM_HOST_RENDER, form);
-      env.hostRendering = false;
+      heart.publish(LifeCycleTypes.ON_FORM_HOST_RENDER, form)
+      env.hostRendering = false
     }
     // 增加name透出真实路径，和0.x保持一致
     const result = {
@@ -870,22 +871,22 @@ export const createFormExternals = (
         ...item,
         name: getFieldState(item.path).name,
       })),
-    };
+    }
 
-    const { errors, warnings } = result;
+    const { errors, warnings } = result
 
     // 打印warnings日志从submit挪到这里
     if (warnings.length) {
-      log.warn(warnings);
+      log.warn(warnings)
     }
     if (errors.length > 0) {
       if (throwErrors) {
-        throw result;
+        throw result
       } else {
-        return result;
+        return result
       }
     } else {
-      return result;
+      return result
     }
   }
 
@@ -895,142 +896,142 @@ export const createFormExternals = (
       graph.eachChildren('', pattern, (field) => {
         if (isField(field)) {
           field.setState((state) => {
-            state.ruleErrors = [];
-            state.ruleWarnings = [];
-            state.effectErrors = [];
-            state.effectWarnings = [];
-          });
+            state.ruleErrors = []
+            state.ruleWarnings = []
+            state.effectErrors = []
+            state.effectWarnings = []
+          })
         }
-      });
-    });
+      })
+    })
   }
 
   function createMutators(input: any) {
-    let field: IField;
+    let field: IField
     if (!isField(input)) {
-      const selected = graph.select(input);
+      const selected = graph.select(input)
       if (selected) {
-        field = selected;
+        field = selected
       } else {
         throw new Error(
-          'The `createMutators` can only accept FieldState instance or FormPathPattern.',
-        );
+          'The `createMutators` can only accept FieldState instance or FormPathPattern.'
+        )
       }
     } else {
-      field = input;
+      field = input
     }
     function setValue(...values: any[]) {
       field.setState((state: IFieldState<FormilyCore.FieldProps>) => {
-        state.value = values[0];
-        state.values = values;
-      });
-      heart.publish(LifeCycleTypes.ON_FIELD_INPUT_CHANGE, field);
-      heart.publish(LifeCycleTypes.ON_FORM_INPUT_CHANGE, form);
+        state.value = values[0]
+        state.values = values
+      })
+      heart.publish(LifeCycleTypes.ON_FIELD_INPUT_CHANGE, field)
+      heart.publish(LifeCycleTypes.ON_FORM_INPUT_CHANGE, form)
     }
 
     function removeValue(key: string | number) {
-      const nodePath = field.getSourceState((state) => state.path);
+      const nodePath = field.getSourceState((state) => state.path)
       if (isValid(key)) {
-        const childNodePath = FormPath.parse(nodePath).concat(key);
+        const childNodePath = FormPath.parse(nodePath).concat(key)
         setFieldState(childNodePath, (state) => {
-          state.value = undefined;
-        });
-        deleteFormValuesIn(childNodePath);
+          state.value = undefined
+        })
+        deleteFormValuesIn(childNodePath)
       } else {
         field.setState((state) => {
-          state.value = undefined;
-        });
-        deleteFormValuesIn(nodePath);
+          state.value = undefined
+        })
+        deleteFormValuesIn(nodePath)
       }
-      heart.publish(LifeCycleTypes.ON_FIELD_VALUE_CHANGE, field);
-      heart.publish(LifeCycleTypes.ON_FIELD_INPUT_CHANGE, field);
-      heart.publish(LifeCycleTypes.ON_FORM_INPUT_CHANGE, form);
+      heart.publish(LifeCycleTypes.ON_FIELD_VALUE_CHANGE, field)
+      heart.publish(LifeCycleTypes.ON_FIELD_INPUT_CHANGE, field)
+      heart.publish(LifeCycleTypes.ON_FORM_INPUT_CHANGE, form)
     }
 
     function getValue() {
-      return field.getState((state) => state.value);
+      return field.getState((state) => state.value)
     }
 
     const mutators = {
       change(...values: any[]) {
-        setValue(...values);
-        return values[0];
+        setValue(...values)
+        return values[0]
       },
       focus() {
         field.setState((state: IFieldState<FormilyCore.FieldProps>) => {
-          state.active = true;
-        });
+          state.active = true
+        })
       },
       click(args: any[]) {
         //TODO:增加点击事件及点击事件参数
         field.setState((state: IFieldState<FormilyCore.FieldProps>) => {
-          state.click = true;
-          state.clickArgs = args;
-        });
+          state.click = true
+          state.clickArgs = args
+        })
       },
       blur() {
         field.setState((state: IFieldState<FormilyCore.FieldProps>) => {
-          state.active = false;
-          state.visited = true;
-        });
+          state.active = false
+          state.visited = true
+        })
       },
       push(value?: any) {
-        const arr = toArr(getValue()).concat(value);
-        setValue(arr);
-        return arr;
+        const arr = toArr(getValue()).concat(value)
+        setValue(arr)
+        return arr
       },
       pop() {
-        const origin = toArr(getValue());
-        const arr = origin.slice(0, origin.length - 1);
-        setValue(arr);
-        return arr;
+        const origin = toArr(getValue())
+        const arr = origin.slice(0, origin.length - 1)
+        setValue(arr)
+        return arr
       },
       insert(index: number, value: any) {
         const arr = toArr(getValue()).reduce((buf, item, idx) => {
-          return idx === index ? buf.concat([value, item]) : buf.concat(item);
-        }, []);
-        setValue(arr);
-        return arr;
+          return idx === index ? buf.concat([value, item]) : buf.concat(item)
+        }, [])
+        setValue(arr)
+        return arr
       },
       remove(index?: number | string) {
-        const val = getValue();
+        const val = getValue()
         if (isNum(index) && isArr(val)) {
-          setValue(val.filter((item, idx) => idx !== index));
+          setValue(val.filter((item, idx) => idx !== index))
         } else {
-          removeValue(index);
+          removeValue(index)
         }
       },
       exist(index?: number | string) {
         const newPath = field.getSourceState((state) =>
-          FormPath.parse(state.path),
-        );
-        const val = getValue();
+          FormPath.parse(state.path)
+        )
+        const val = getValue()
         return (isValid(index) ? newPath.concat(index) : newPath).existIn(
           val,
-          newPath,
-        );
+          newPath
+        )
       },
       unshift(value: any) {
-        return mutators.insert(0, value);
+        return mutators.insert(0, value)
       },
       shift() {
-        return mutators.remove(0);
+        return mutators.remove(0)
       },
       move($from: number, $to: number) {
-        const arr = toArr(getValue()).slice();
-        const item = arr[$from];
-        arr.splice($from, 1);
-        arr.splice($to, 0, item);
-        setValue(arr);
-        return arr;
+        const arr = toArr(getValue()).slice()
+        const item = arr[$from]
+        arr.splice($from, 1)
+        arr.splice($to, 0, item)
+        setValue(arr)
+        return arr
       },
       moveUp(index: number) {
-        const len = toArr(getValue()).length;
-        return mutators.move(index, index - 1 < 0 ? len - 1 : index - 1);
+        const len = toArr(getValue()).length
+        return mutators.move(index, index - 1 < 0 ? len - 1 : index - 1)
       },
       moveDown(index: number) {
-        const len = toArr(getValue()).length;
-        return mutators.move(index, index + 1 > len ? 0 : index + 1);
+        const len = toArr(getValue()).length
+        return mutators.move(index, index + 1 > len ? 0 : index + 1)
       },
       validate(opts?: IFormExtendedValidateFieldOptions) {
         return validate(
@@ -1038,28 +1039,28 @@ export const createFormExternals = (
           {
             ...opts,
             hostRendering: false,
-          },
-        );
+          }
+        )
       },
-    };
-    return mutators;
+    }
+    return mutators
   }
 
   function hasChanged(target: any, path: FormPathPattern): boolean {
     if (env.publishing[target ? target.path : ''] === false) {
       throw new Error(
-        'The watch function must be used synchronously in the subscribe callback.',
-      );
+        'The watch function must be used synchronously in the subscribe callback.'
+      )
     }
     if (isFormState(target)) {
-      return form.hasChanged(path);
+      return form.hasChanged(path)
     } else if (isFieldState(target) || isVirtualFieldState(target)) {
-      const node = graph.get(target.path);
-      return node && node.hasChanged(path);
+      const node = graph.get(target.path)
+      return node && node.hasChanged(path)
     } else {
       throw new Error(
-        'Illegal parameter,You must pass the correct state object(FormState/FieldState/VirtualFieldState).',
-      );
+        'Illegal parameter,You must pass the correct state object(FormState/FieldState/VirtualFieldState).'
+      )
     }
   }
 
@@ -1072,11 +1073,11 @@ export const createFormExternals = (
 
   //发送新消息
   function emit(path: string, data: any) {
-    $bus.emit(path, data);
+    $bus.emit(path, data)
   }
 
   function configMessage(options: any) {
-    message.config(options);
+    message.config(options)
   }
 
   function showMessage(
@@ -1084,21 +1085,21 @@ export const createFormExternals = (
     content: string,
     duration: number = 3,
     onClose: any,
-    afterClose: any,
+    afterClose: any
   ) {
-    message[level](content, [duration], onClose).then(afterClose);
+    message[level](content, [duration], onClose).then(afterClose)
   }
 
   function closeMessage() {
-    message.destroy();
+    message.destroy()
   }
 
   function showNotification(type: any, config: any) {
-    notification[type](config);
+    notification[type](config)
   }
 
   function configNotification(options: any) {
-    notification.config(options);
+    notification.config(options)
   }
 
   function closeNotification() {
@@ -1106,31 +1107,54 @@ export const createFormExternals = (
   }
 
   function guid() {
-    return uuidv4();
+    return uuidv4()
   }
 
-  function parseIdCard (val: string) {
-    return getIdCard(val);
+  function parseIdCard(val: string) {
+    return getIdCard(val)
   }
 
-  function getHistory(){
-    return history;
+  function getHistory() {
+    return history
+  }
+
+  function push(obj: any) {
+    // console.log(history)
+    //历史路径和即将跳转的地址相同则不跳转
+    if (isObject(obj)) {
+      const { pathname = '', query = {} } = obj
+      if (
+        !isEqual(history.location.pathname, pathname) &&
+        !isEqual(history.location.query, query)
+      ) {
+        history.push(obj)
+      }
+    } else {
+      const query = qs.stringify(history.location.query);
+      let realUrl = history.location.pathname;
+      if(!isEmpty(query)){
+        realUrl = realUrl + "?" + query;
+      }
+      if (!isEqual(realUrl, obj)) {
+        history.push(obj)
+      }
+    }
   }
 
   function post(url: string, options: any) {
-    return request.post(url, options);
+    return request.post(url, options)
   }
 
   function get(url: string, options: any) {
-    return request.get(url, options);
+    return request.get(url, options)
   }
 
   function put(url: string, options: any) {
-    return request.put(url, options);
+    return request.put(url, options)
   }
 
   function del(url: string, options: any) {
-    return request.delete(url, options);
+    return request.delete(url, options)
   }
 
   const formApi = {
@@ -1159,6 +1183,7 @@ export const createFormExternals = (
     guid,
     parseIdCard,
     getHistory,
+    push,
     //
     setFieldState,
     getFieldState,
@@ -1176,9 +1201,9 @@ export const createFormExternals = (
     subscribe,
     unsubscribe,
     notify,
-  };
+  }
 
-  init(formApi);
+  init(formApi)
 
-  return formApi;
-};
+  return formApi
+}
