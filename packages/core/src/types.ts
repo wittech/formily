@@ -91,6 +91,7 @@ export type FormGraph<T> = (
 export interface FormGraphNodeRef {
   parent?: FormGraphNodeRef
   path: FormPath
+  dataPath?: FormPath
   children: FormPath[]
 }
 
