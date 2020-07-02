@@ -5,7 +5,8 @@ import {
   Subscribable,
   isValid,
   toArr,
-  isEqual
+  isEqual,
+  each
 } from '@formily/shared'
 import {
   IFormEffect,
@@ -492,7 +493,7 @@ export const inspectChanged = (
 ): any => {
   let changeNum = 0
   const changedProps = {}
-  toArr(keys).forEach((key: string) => {
+  each(keys, (key: string) => {
     if (!isEqual(source[key], target[key])) {
       changeNum++
       changedProps[key] = target[key]
