@@ -102,7 +102,6 @@ export const Field = createModel<IFieldState, IFieldStateProps>(
       required: false,
       mounted: false,
       unmounted: false,
-      unmountRemoveValue: true,
       props: {},
       //TODO:增加字段是否点击的状态
       click: false,
@@ -117,6 +116,17 @@ export const Field = createModel<IFieldState, IFieldStateProps>(
       this.state.dataType = props.dataType
       this.props = props
       this.updates = []
+    }
+
+    dirtyCheck(path: string[], currentValue: any, nextValue: any) {
+      if (path[0] === 'value') {
+        if (this.isArrayList()) {
+          //如果是ArrayList，不再做精准判断，因为数组内部侵入了Symbol，使用isEqual判断会有问题
+          return true
+        }
+      }
+
+      return !isEqual(currentValue, nextValue)
     }
 
     getValueFromProps() {
@@ -208,7 +218,15 @@ export const Field = createModel<IFieldState, IFieldStateProps>(
       )
     }
 
+    supportUnmountClearStates() {
+      if (isFn(this.props?.supportUnmountClearStates)) {
+        return this.props?.supportUnmountClearStates(this.state.path)
+      }
+      return true
+    }
+
     produceSideEffects(draft: Draft<IFieldState>, dirtys: FieldStateDirtyMap) {
+      const supportClearStates = this.supportUnmountClearStates()
       if (dirtys.validating) {
         if (draft.validating === true) {
           draft.loading = true
@@ -220,7 +238,7 @@ export const Field = createModel<IFieldState, IFieldStateProps>(
         dirtys.editable ||
         dirtys.selfEditable ||
         draft.visible === false ||
-        draft.unmounted === true
+        (dirtys.unmounted && draft.unmounted === true && supportClearStates)
       ) {
         draft.errors = []
         draft.effectErrors = []
@@ -243,10 +261,7 @@ export const Field = createModel<IFieldState, IFieldStateProps>(
         draft.mounted = true
       }
       if (dirtys.visible || dirtys.mounted || dirtys.unmounted) {
-        if (
-          draft.unmountRemoveValue &&
-          this.props?.needRemoveValue?.(this.state.path)
-        ) {
+        if (supportClearStates) {
           if (draft.display) {
             if (draft.visible === false || draft.unmounted === true) {
               if (!dirtys.visibleCacheValue) {
@@ -284,11 +299,9 @@ export const Field = createModel<IFieldState, IFieldStateProps>(
               draft.value = undefined
               draft.values = toArr(draft.values)
               draft.values[0] = undefined
-              this.updates.push('value')
             } else if (draft.visible === true) {
               if (!isValid(draft.value)) {
                 draft.value = draft.visibleCacheValue
-                this.updates.push('value')
               }
             }
           }
