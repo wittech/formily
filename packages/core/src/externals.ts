@@ -83,21 +83,22 @@ export const createFormExternals = (
   function eachArrayExchanges(
     prevState: IFieldState,
     currentState: IFieldState,
-    eacher: (prevPath: string, currentPath: string) => void
+    eacher: (prevPath: string, currentPath: string, lastResults: any) => void
   ) {
     const exchanged = {}
     const prevValue = prevState.value
     const currentValue = currentState.value
-    const minLengthValue =
-      prevValue?.length < currentValue?.length ? prevValue : currentValue
+    const maxLengthValue =
+      prevValue?.length > currentValue?.length ? prevValue : currentValue
     //删除元素正向循环，添加或移动使用逆向循环
+    let lastResults: any
     each(
-      minLengthValue,
+      maxLengthValue,
       (item, index) => {
         const prev = prevValue?.[index]?.[ARRAY_UNIQUE_TAG]
         const current = currentValue?.[index]?.[ARRAY_UNIQUE_TAG]
         if (prev === current) return
-        if (prev === undefined || current === undefined) {
+        if (prev === undefined) {
           return
         }
         if (currentValue?.length === prevValue?.length) {
@@ -105,7 +106,7 @@ export const createFormExternals = (
           exchanged[prev] = true
           exchanged[current] = true
         }
-        eacher(prev, current)
+        lastResults = eacher(prev, current, lastResults)
       },
       currentState?.value?.length >= prevState?.value?.length
     )
@@ -166,7 +167,8 @@ export const createFormExternals = (
   function exchangeState(
     parentPath: FormPathPattern,
     prevPattern: FormPathPattern,
-    currentPattern: FormPathPattern
+    currentPattern: FormPathPattern,
+    lastCurrentStates: any
   ) {
     const currentIndex = FormPath.transform(
       currentPattern,
@@ -176,6 +178,7 @@ export const createFormExternals = (
       }
     )
     const exchanged = {}
+    const currentStates = {}
     graph.eachChildren(
       parentPath,
       calculateMathTag(prevPattern),
@@ -185,18 +188,34 @@ export const createFormExternals = (
         const currentPath = calculateMovePath(prevPath, currentIndex)
         const currentState = getFieldState(currentPath, getExchangeState)
         const currentField = graph.get(currentPath) as IField
-        if (exchanged[prevPath + currentPath]) return
-        if (prevField && currentField) {
+        if (prevField) {
           prevField.setSourceState(state => {
-            Object.assign(state, currentState)
+            if (currentState) {
+              Object.assign(state, currentState)
+            } else {
+              //补位交换
+              Object.assign(
+                state,
+                getExchangeState(lastCurrentStates[prevPath])
+              )
+            }
+
+            if (isField(prevField)) {
+              syncFormMessages('errors', state)
+              syncFormMessages('warnings', state)
+            }
           })
+        }
+        if (currentField) {
+          currentStates[currentPath] = currentField.getState()
           currentField.setSourceState(state => {
             Object.assign(state, prevState)
           })
-          exchanged[prevPath + currentPath] = true
         }
+        exchanged[prevPath + currentPath] = true
       }
     )
+    return currentStates
   }
 
   function eachParentFields(field: IField, callback: (field: IField) => void) {
@@ -228,9 +247,14 @@ export const createFormExternals = (
           const currentTags = parseArrayTags(published.value)
           if (!isEqual(prevTags, currentTags)) {
             const removedTags = calculateRemovedTags(prevTags, currentTags)
-            eachArrayExchanges(field.prevState, published, (prev, current) =>
-              exchangeState(path, prev, current)
-            )
+            form.batch(() => {
+              eachArrayExchanges(
+                field.prevState,
+                published,
+                (prev, current, lastResults = {}) =>
+                  exchangeState(path, prev, current, lastResults)
+              )
+            })
             removeArrayNodes(removedTags)
             //重置TAG，保证下次状态交换是没问题的
             setFormValuesIn(
