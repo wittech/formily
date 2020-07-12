@@ -1100,7 +1100,7 @@ export const createFormExternals = (
       },
       moveDown(index: number) {
         const len = toArr(getValue()).length
-        return mutators.move(index, index + 1 > len ? 0 : index + 1)
+        return mutators.move(index, index + 1 >= len ? 0 : index + 1)
       },
       validate(opts?: IFormExtendedValidateFieldOptions) {
         return validate(
