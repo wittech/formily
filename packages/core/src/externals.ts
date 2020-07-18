@@ -60,6 +60,7 @@ export const createFormExternals = (
     heart,
     graph,
     validator,
+    upload,
     hostUpdate,
     afterUnmount,
     nextTick,
@@ -240,7 +241,7 @@ export const createFormExternals = (
       if (dirtys.initialized) {
         heart.publish(LifeCycleTypes.ON_FIELD_INIT, field)
       }
-      if (dirtys.value) {
+      if (dirtys.value || dirtys.values) {
         const isArrayList = /array/gi.test(published.dataType)
         if (isArrayList) {
           const prevTags = parseArrayTags(field.prevState.value)
@@ -408,14 +409,20 @@ export const createFormExternals = (
           return form.getState(state => state.editable)
         },
         setValue(name, value) {
-          setFormValuesIn(name, value)
+          upload(() => {
+            setFormValuesIn(name, value)
+          })
         },
         setInitialValue(name, value) {
-          setFormInitialValuesIn(name, value)
+          upload(() => {
+            setFormInitialValuesIn(name, value)
+          })
         },
         removeValue(name) {
           if (!graph.get(nodePath)) return
-          deleteFormValuesIn(name)
+          upload(() => {
+            deleteFormValuesIn(name)
+          })
         },
         getInitialValue(name) {
           return getFormInitialValuesIn(name)
