@@ -322,7 +322,12 @@ export const createFormExternals = (
         syncFormMessages('warnings', published)
       }
 
-      if (dirtys.visible || dirtys.display || dirtys.editable) {
+      if (
+        dirtys.visible ||
+        dirtys.display ||
+        dirtys.editable ||
+        dirtys.unmounted
+      ) {
         //fix #682
         if (dirtys.unmounted) {
           if (supportUnmountClearStates(published.path)) {
@@ -1080,6 +1085,11 @@ export const createFormExternals = (
         const origin = toArr(getValue())
         if (origin.length === 0) {
           const arr = [value]
+          setValue(arr)
+          return arr
+        }
+        if (origin.length === index) {
+          const arr = origin.concat([value])
           setValue(arr)
           return arr
         }
