@@ -160,7 +160,7 @@ export const connect = <ExtendsComponentKey extends string = ''>(
         componentProps.style = {
           ...(componentProps.style || {}),
           width: '100%',
-          flex: 1,
+          flex: '1 1 0%',
         }
       }
 
