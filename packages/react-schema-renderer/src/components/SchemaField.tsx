@@ -18,7 +18,8 @@ import { Schema } from '../shared/schema'
 import {
   FormSchemaContext,
   FormComponentsContext,
-  FormExpressionScopeContext
+  FormExpressionScopeContext,
+  SchemaFieldPropsContext
 } from '../shared/context'
 import { complieExpression } from '../shared/expression'
 
@@ -108,7 +109,11 @@ export const SchemaField: React.FunctionComponent<ISchemaFieldProps> = (
             mutators,
             renderField
           }
-          return callback(props)
+          return (
+            <SchemaFieldPropsContext.Provider value={props}>
+              {callback(props)}
+            </SchemaFieldPropsContext.Provider>
+          )
         }}
       </Field>
     )
@@ -153,27 +158,32 @@ export const SchemaField: React.FunctionComponent<ISchemaFieldProps> = (
             )
           }
 
-          return callback(props)
+          return (
+            <SchemaFieldPropsContext.Provider value={props}>
+              {callback(props)}
+            </SchemaFieldPropsContext.Provider>
+          )
         }}
       </VirtualField>
     )
   }
 
+  const renderProperties = () => {
+    return fieldSchema.mapProperties((schema: Schema, key: string) => {
+      const childPath = path.concat(key)
+      return (
+        <SchemaField
+          schema={schema}
+          key={childPath.toString()}
+          path={childPath}
+        />
+      )
+    })
+  }
+
   if (fieldSchema.isObject() && !schemaComponent) {
-    const properties = fieldSchema.mapProperties(
-      (schema: Schema, key: string) => {
-        const childPath = path.concat(key)
-        return (
-          <SchemaField
-            schema={schema}
-            key={childPath.toString()}
-            path={childPath}
-          />
-        )
-      }
-    )
     if (path.length == 0 || props.onlyRenderProperties) {
-      return <Fragment>{properties}</Fragment>
+      return <Fragment>{renderProperties()}</Fragment>
     }
     return renderFieldDelegate(props => {
       const renderComponent = () => {
@@ -186,7 +196,7 @@ export const SchemaField: React.FunctionComponent<ISchemaFieldProps> = (
         return React.createElement(
           formRegistry.formItemComponent,
           props,
-          properties
+          renderProperties()
         )
       }
       if (isFn(schemaRenderer)) {
