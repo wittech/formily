@@ -9,31 +9,19 @@ export const Submit = ({ showLoading, onSubmit, ...props }: ISubmitProps) => {
       selector={[
         LifeCycleTypes.ON_FORM_MOUNT,
         LifeCycleTypes.ON_FORM_SUBMIT_START,
-        // LifeCycleTypes.ON_FORM_SUBMIT_END, //修改为提交成功或者失败后才取消loading，避免前端重复提交
-        LifeCycleTypes.ON_FORM_ON_SUBMIT_SUCCESS,
-        LifeCycleTypes.ON_FORM_ON_SUBMIT_FAILED,
+        LifeCycleTypes.ON_FORM_SUBMIT_END
       ]}
       reducer={(state, action) => {
         switch (action.type) {
           case LifeCycleTypes.ON_FORM_SUBMIT_START:
             return {
               ...state,
-              submitting: true,
+              submitting: true
             }
-          // case LifeCycleTypes.ON_FORM_SUBMIT_END:
-          //   return {
-          //     ...state,
-          //     submitting: false
-          //   }
-          case LifeCycleTypes.ON_FORM_ON_SUBMIT_SUCCESS:
+          case LifeCycleTypes.ON_FORM_SUBMIT_END:
             return {
               ...state,
-              submitting: false,
-            }
-          case LifeCycleTypes.ON_FORM_ON_SUBMIT_FAILED:
-            return {
-              ...state,
-              submitting: false,
+              submitting: false
             }
           default:
             return state
@@ -43,7 +31,7 @@ export const Submit = ({ showLoading, onSubmit, ...props }: ISubmitProps) => {
       {({ state, form }) => {
         return (
           <Button
-            onClick={(e) => {
+            onClick={e => {
               if (onSubmit) {
                 form.submit(onSubmit)
               }
@@ -66,7 +54,7 @@ export const Submit = ({ showLoading, onSubmit, ...props }: ISubmitProps) => {
 Submit.defaultProps = {
   showLoading: true,
   type: 'primary',
-  htmlType: 'submit',
+  htmlType: 'submit'
 }
 
 export const Reset: React.FC<IResetProps> = ({
