@@ -1187,8 +1187,8 @@ export const createFormExternals = (
   }
 
   //发送新消息
-  function emit(path: string, data: any) {
-    $bus.emit(path, data)
+  function emit(path: string, ...args: any[]) {
+    $bus.emit(path, ...args)
   }
 
   function configMessage(options: any) {
@@ -1202,8 +1202,24 @@ export const createFormExternals = (
     onClose: any,
     afterClose: any
   ) {
-    message[level](content, [duration], onClose).then(afterClose)
+    return message[level](content, [duration], onClose).then(afterClose)
   }
+
+  function showLoading(
+    content: string,
+    duration: number = 0,
+    onClose: any,
+  ) {
+    return message.loading(content, duration, onClose)
+  }
+
+  // function showLoading(
+  //   spinning: boolean,
+  //   tip: string,
+  //   size: string = 'default'
+  // ) {
+  //   $bus.emit('_loading', {spinning, tip, size})
+  // }
 
   function closeMessage() {
     message.destroy()
@@ -1291,6 +1307,7 @@ export const createFormExternals = (
     del,
     configMessage,
     showMessage,
+    showLoading,
     closeMessage,
     showNotification,
     configNotification,
