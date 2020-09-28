@@ -42,12 +42,13 @@ import {
 import { VirtualField } from './models/virtual-field'
 import { forIn, set, isObject, isEmpty } from 'lodash-es'
 import request from '@/utils/request'
-import { message, notification } from 'antd'
+import { message, notification, Modal } from 'antd'
 import { v4 as uuidv4 } from 'uuid'
 import { getIdCard } from '@/utils/idcard'
 import { Path } from 'cool-path'
 import { history } from 'umi'
 import qs from 'qs'
+const { confirm } = Modal;
 
 export const createFormExternals = (
   internals: ReturnType<typeof createFormInternals>
@@ -1207,6 +1208,27 @@ export const createFormExternals = (
     return message[level](content, [duration], onClose).then(afterClose)
   }
 
+  function showConfirm(
+    title: string = '提示标题',
+    content: string = '提示内容',
+    onOk: any,
+    okText: string = '确定',
+    okType: string = 'primary',
+    cancelText: string = '取消'
+  ) {
+    confirm({
+      title: title,
+      content: content,
+      okText: okText,
+      okType: okType,
+      cancelText: cancelText,
+      onOk: onOk,
+      onCancel() {
+
+      },
+    });
+  }
+
   function showLoading(
     content: string,
     duration: number = 0,
@@ -1309,6 +1331,7 @@ export const createFormExternals = (
     del,
     configMessage,
     showMessage,
+    showConfirm,
     showLoading,
     closeMessage,
     showNotification,
