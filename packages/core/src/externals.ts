@@ -76,6 +76,8 @@ export const createFormExternals = (
     supportUnmountClearStates,
     disableUnmountClearStates,
     enableUnmountClearStates,
+    enableUnmountRemoveNode,
+    disableUnmountRemoveNode,
     resetFormMessages,
     syncFormMessages,
     batchRunTaskQueue,
@@ -311,6 +313,9 @@ export const createFormExternals = (
           env.realRemoveTags = []
         })
         heart.publish(LifeCycleTypes.ON_FIELD_UNMOUNT, field)
+        if (env.unmountRemoveNode) {
+          graph.remove(field.state.path)
+        }
       }
 
       if (dirtys.mounted && published.mounted) {
@@ -379,6 +384,9 @@ export const createFormExternals = (
           env.realRemoveTags = []
         })
         heart.publish(LifeCycleTypes.ON_FIELD_UNMOUNT, field)
+        if (env.unmountRemoveNode) {
+          graph.remove(field.state.path)
+        }
       }
       if (dirtys.mounted && published.mounted) {
         heart.publish(LifeCycleTypes.ON_FIELD_MOUNT, field)
@@ -1355,6 +1363,8 @@ export const createFormExternals = (
     getFieldInitialValue,
     disableUnmountClearStates,
     enableUnmountClearStates,
+    enableUnmountRemoveNode,
+    disableUnmountRemoveNode,
     isHostRendering,
     hostUpdate,
     subscribe,

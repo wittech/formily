@@ -65,7 +65,7 @@ export const PreviewText: React.FC<IPreviewTextProps> & {
       {value === '' ||
       value === undefined ||
       (Array.isArray(value) && value.length === 0)
-        ? placeholder || 'N/A'
+        ? placeholder || '暂无'
         : value}
       {props.addonTextAfter ? ' ' + props.addonTextAfter : ''}
       {props.innerAfter ? ' ' + props.innerAfter : ''}
