@@ -1,6 +1,7 @@
 import React from 'react'
 import { isArr, each, isFn, isValid, defaults } from '@formily/shared'
 import { useLayout } from '@formily/react'
+import hoistNonReactStatics from 'hoist-non-react-statics'
 import {
   ISchema,
   IConnectOptions,
@@ -160,7 +161,7 @@ export const connect = <ExtendsComponentKey extends string = ''>(
         componentProps.style = {
           ...(componentProps.style || {}),
           width: '100%',
-          flex: '1 1 0%',
+          flex: '1 1 0%'
         }
       }
 
@@ -179,6 +180,9 @@ export const connect = <ExtendsComponentKey extends string = ''>(
     Object.assign(ConnectedComponent, {
       __ALREADY_CONNECTED__: true
     })
+    if (Component) {
+      hoistNonReactStatics(ConnectedComponent, Component)
+    }
 
     return ConnectedComponent
   }
