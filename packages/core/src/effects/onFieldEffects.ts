@@ -49,6 +49,9 @@ export const onFieldValidateFailed = createFieldEffect(
 export const onFieldValidateSuccess = createFieldEffect(
   LifeCycleTypes.ON_FIELD_VALIDATE_SUCCESS
 )
+export const onFieldClick = createFieldEffect(
+  LifeCycleTypes.ON_FIELD_CLICK
+)
 
 export function onFieldInit(
   pattern: FormPathPattern,

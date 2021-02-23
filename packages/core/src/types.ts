@@ -86,6 +86,7 @@ export enum LifeCycleTypes {
   ON_FIELD_RESET = 'onFieldReset',
   ON_FIELD_MOUNT = 'onFieldMount',
   ON_FIELD_UNMOUNT = 'onFieldUnmount',
+  ON_FIELD_CLICK = 'onFieldClick' //扩展点击事件
 }
 
 export type HeartSubscriber = ({

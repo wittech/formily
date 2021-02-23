@@ -212,6 +212,7 @@ export class Field<
       onFocus: action,
       onBlur: action,
       reset: action,
+      onClick: action,
     })
   }
 
@@ -697,6 +698,11 @@ export class Field<
   onBlur = async () => {
     this.active = false
     await this.validate('onBlur')
+  }
+
+  onClick = async () => {
+    this.form.notify(LifeCycleTypes.ON_FIELD_CLICK, this)
+    await this.validate('onClick')
   }
 
   validate = async (triggerType?: ValidatorTriggerType) => {

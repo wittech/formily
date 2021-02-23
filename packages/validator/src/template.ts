@@ -13,7 +13,7 @@ export const render = (
       result.message = template(message, rules)
     }
     result.message = result.message.replace(
-      /\{\{\s*([\w.]+)\s*\}\}/g,
+      /\<\%\s*([\w.]+)\s*\%\>/g,
       (_, $0) => {
         return FormPath.getIn(rules, $0)
       }

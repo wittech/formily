@@ -46,6 +46,13 @@ const ReactiveInternal: React.FC<IReactiveFieldProps> = (props) => {
           field.component[1]?.onChange?.(...args)
         }
       : undefined
+    //TODO:扩展onClick事件
+    const onClick = !isVoidField(field)
+      ? (...args: any[]) => {
+          field.onClick(...args)
+          field.component[1]?.onClick?.(...args)
+        }
+      : undefined
     const disabled = !isVoidField(field)
       ? field.pattern === 'disabled' || field.pattern === 'readPretty'
       : undefined
@@ -54,7 +61,7 @@ const ReactiveInternal: React.FC<IReactiveFieldProps> = (props) => {
       : undefined
     return React.createElement(
       field.component[0],
-      { disabled, readOnly, ...field.component[1], value, onChange },
+      { disabled, readOnly, ...field.component[1], value, onChange, onClick },
       children
     )
   }
