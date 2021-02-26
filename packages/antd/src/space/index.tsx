@@ -1,5 +1,5 @@
 import { Space } from 'antd'
 
-export { Space }
+//export { Space }
 
 export default Space

@@ -702,7 +702,6 @@ export class Field<
 
   onClick = async () => {
     this.form.notify(LifeCycleTypes.ON_FIELD_CLICK, this)
-    await this.validate('onClick')
   }
 
   validate = async (triggerType?: ValidatorTriggerType) => {
