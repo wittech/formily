@@ -388,7 +388,8 @@ export class Form<ValueType = any> {
   }
 
   getValuesIn = (pattern: FormPathPattern) => {
-    return FormPath.getIn(this.values, pattern)
+    //TODO:修复值类型还是Observable的情况
+    return FormPath.getIn(toJS(this.values), pattern)
   }
 
   setInitialValuesIn = (pattern: FormPathPattern, initialValue: any) => {
