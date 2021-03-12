@@ -46,6 +46,118 @@ export default () => (
 )
 ```
 
+## Markup Schema 异步搜索案例
+
+```tsx
+import React from 'react'
+import { Select, FormItem, FormButtonGroup, Submit } from '@formily/antd'
+import { createForm, onFieldReact } from '@formily/core'
+import { FormProvider, createSchemaField } from '@formily/react'
+import { LoadingOutlined } from '@ant-design/icons'
+import { action, observable } from '@formily/reactive'
+import { fetch } from 'mfetch'
+
+let timeout
+let currentValue
+
+function fetchData(value, callback) {
+  if (timeout) {
+    clearTimeout(timeout)
+    timeout = null
+  }
+  currentValue = value
+
+  function fake() {
+    fetch(`https://suggest.taobao.com/sug?q=${value}`, {
+      method: 'jsonp',
+    })
+      .then((response) => response.json())
+      .then((d) => {
+        if (currentValue === value) {
+          const { result } = d
+          const data = []
+          result.forEach((r) => {
+            data.push({
+              value: r[0],
+              text: r[0],
+            })
+          })
+          callback(data)
+        }
+      })
+  }
+
+  timeout = setTimeout(fake, 300)
+}
+
+const SchemaField = createSchemaField({
+  components: {
+    Select,
+    FormItem,
+  },
+})
+
+const useAsyncDataSource = (
+  pattern: Formily.Core.Types.FormPathPattern,
+  service: (
+    field: Formily.Core.Models.Field
+  ) => Promise<{ label: string; value: any }[]>
+) => {
+  const keyword = observable.ref('')
+  onFieldReact(pattern, (field) => {
+    field.setComponentProps({
+      suffixIcon: <LoadingOutlined />,
+      onSearch: (value) => {
+        keyword.value = value
+      },
+    })
+    service({ field, keyword: keyword.value }).then(
+      action((data) => {
+        field.setDataSource(data)
+        field.setComponentProps({
+          suffixIcon: undefined,
+        })
+      })
+    )
+  })
+}
+
+const form = createForm({
+  effects: () => {
+    useAsyncDataSource('select', async ({ keyword }) => {
+      if (!keyword) {
+        return []
+      }
+      return new Promise((resolve) => {
+        fetchData(keyword, resolve)
+      })
+    })
+  },
+})
+
+export default () => (
+  <FormProvider form={form}>
+    <SchemaField>
+      <SchemaField.String
+        name="select"
+        title="异步搜索选择框"
+        x-decorator="FormItem"
+        x-component="Select"
+        x-component-props={{
+          showSearch: true,
+          style: {
+            width: 300,
+          },
+        }}
+      />
+    </SchemaField>
+    <FormButtonGroup>
+      <Submit onSubmit={console.log}>提交</Submit>
+    </FormButtonGroup>
+  </FormProvider>
+)
+```
+
 ## Markup Schema 异步联动数据源案例
 
 ```tsx
@@ -54,7 +166,7 @@ import { Select, FormItem, FormButtonGroup, Submit } from '@formily/antd'
 import { createForm, onFieldReact } from '@formily/core'
 import { FormProvider, createSchemaField } from '@formily/react'
 import { LoadingOutlined } from '@ant-design/icons'
-import { action } from 'mobx'
+import { action } from '@formily/reactive'
 
 const SchemaField = createSchemaField({
   components: {
@@ -213,7 +325,7 @@ import { Select, FormItem, FormButtonGroup, Submit } from '@formily/antd'
 import { createForm } from '@formily/core'
 import { FormProvider, createSchemaField } from '@formily/react'
 import { LoadingOutlined } from '@ant-design/icons'
-import { action } from 'mobx'
+import { action } from '@formily/reactive'
 
 const SchemaField = createSchemaField({
   components: {
@@ -358,7 +470,7 @@ import { Select, FormItem, FormButtonGroup, Submit } from '@formily/antd'
 import { createForm, onFieldReact } from '@formily/core'
 import { FormProvider, Field } from '@formily/react'
 import { LoadingOutlined } from '@ant-design/icons'
-import { action } from 'mobx'
+import { action } from '@formily/reactive'
 
 const useAsyncDataSource = (
   pattern: Formily.Core.Types.FormPathPattern,

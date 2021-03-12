@@ -993,6 +993,16 @@ export default () => {
             title="Select"
             x-decorator="FormItem"
             x-component="Select"
+            enum=[
+              {
+                label: '选项1',
+                value: 1,
+              },
+              {
+                label: '选项2',
+                value: 2,
+              }
+            ]
             required
           />
           <SchemaField.String
@@ -1044,6 +1054,10 @@ export default () => {
 | 属性名         | 类型                                                   | 描述                                        | 默认值    |
 | -------------- | ------------------------------------------------------ | ------------------------------------------- | --------- |
 | label          | ReactNode                                              | 标签                                        | -         |
+| style          | CSSProperties                                          | 样式                                        | -         |
+| labelStyle     | CSSProperties                                          | 标签样式                                    | -         |
+| wrapperStyle   | CSSProperties                                          | 组件容器样式                                | -         |
+| className      | string                                                 | 组件样式类名                                | -         |
 | colon          | boolean                                                | 冒号                                        | true      |
 | tooltip        | ReactNode                                              | 问号提示                                    | -         |
 | labelAlign     | `"left"` \| `"right"`                                  | 标签文本对齐方式                            | `"right"` |
