@@ -16,6 +16,10 @@
         line-height: @height-base;
     }
 
+    &-label-content {
+        min-height: @height-base;
+    }
+
     &-content-component {
         line-height: @height-base;
     }
@@ -75,7 +79,7 @@
         }
     }
 
-    
+
     .@{ant-prefix}-select,
     .@{ant-prefix}-cascader-picker,
     .@{ant-prefix}-picker {
@@ -148,6 +152,14 @@
     }
 }
 
+.@{form-item-cls}-feedback-layout-none {
+    margin-bottom: 0px;
+
+    &.@{form-item-cls}-feedback-has-text:not(.@{form-item-cls}-inset) {
+        margin-bottom: 0;
+    }
+}
+
 .@{form-item-cls}-control {
     flex: 1;
 
@@ -172,6 +184,7 @@
             display: inline-flex;
             align-items: center;
             min-height: @height-base;
+            flex-shrink: 0;
         }
 
         .@{form-item-cls}-addon-after {
@@ -179,6 +192,7 @@
             display: inline-flex;
             align-items: center;
             min-height: @height-base;
+            flex-shrink: 0;
         }
     }
 }
@@ -188,6 +202,10 @@
 
     .@{form-item-cls}-label * {
         line-height: @height-sm;
+    }
+
+    .@{form-item-cls}-label-content {
+        min-height: @height-sm;
     }
 
     .@{form-item-cls}-control-content {
@@ -247,13 +265,14 @@
     .@{ant-prefix}-select-single:not(.@{ant-prefix}-select-customize-input) .@{ant-prefix}-select-selector {
         padding: 0px 7px;
         height: @form-item-margin-bottom;
-      
-       .@{ant-prefix}-select-selection-search-input{
-          height: @height-sm - 2;
-       }
-      .@{ant-prefix}-select-selection-item{
-         line-height: @height-sm - 2;
-       }
+
+        .@{ant-prefix}-select-selection-search-input {
+            height: @height-sm - 2;
+        }
+
+        .@{ant-prefix}-select-selection-item {
+            line-height: @height-sm - 2;
+        }
     }
 
 }
@@ -263,6 +282,10 @@
 
     .@{form-item-cls}-label * {
         line-height: @height-lg;
+    }
+
+    .@{form-item-cls}-label-content {
+        min-height: @height-lg;
     }
 
     .@{form-item-cls}-control-content {
@@ -472,6 +495,7 @@
 }
 
 .@{form-item-cls}-error {
+
     .@{ant-prefix}-select-selector,
     .@{ant-prefix}-cascader-picker,
     .@{ant-prefix}-picker,
@@ -482,6 +506,7 @@
     .@{ant-prefix}-input {
         border-color: @error-color  !important;
     }
+
     .@{ant-prefix}-select-selector,
     .@{ant-prefix}-cascader-picker,
     .@{ant-prefix}-picker,
@@ -517,6 +542,7 @@
 }
 
 .@{form-item-cls}-warning {
+
     .@{ant-prefix}-select-selector,
     .@{ant-prefix}-cascader-picker,
     .@{ant-prefix}-picker,
@@ -527,6 +553,7 @@
     .@{ant-prefix}-input {
         border-color: @warning-color  !important;
     }
+
     .@{ant-prefix}-select-selector,
     .@{ant-prefix}-cascader-picker,
     .@{ant-prefix}-picker,
@@ -560,6 +587,7 @@
     .@{ant-prefix}-input {
         border-color: @success-color  !important;
     }
+
     .@{ant-prefix}-select-selector,
     .@{ant-prefix}-cascader-picker,
     .@{ant-prefix}-picker,

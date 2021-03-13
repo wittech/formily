@@ -349,6 +349,8 @@ export interface IFieldResetOptions {
 export type IGeneralFieldState = IFieldState & IVoidFieldState
 
 export type GeneralField = Field | VoidField | ArrayField | ObjectField
+
+export type DataField = Field | ArrayField | ObjectField
 export interface ISpliceArrayStateProps {
   startIndex?: number
   deleteCount?: number
