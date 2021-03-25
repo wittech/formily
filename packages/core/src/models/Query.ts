@@ -1,5 +1,4 @@
 import { FormPath, isFn, each, FormPathPattern } from '@formily/shared'
-import { untracked } from '@formily/reactive'
 import { GeneralField, IGeneralFieldState, IQueryProps } from '../types'
 import { Form } from './Form'
 
@@ -30,14 +29,10 @@ export class Query {
         this.addresses = [index]
       }
     } else {
-      this.addresses = untracked(() => {
-        const results = []
-        each(this.form.fields, (field, address) => {
-          if (field.match(this.pattern)) {
-            results.push(address)
-          }
-        })
-        return results
+      each(this.form.fields, (field, address) => {
+        if (field.match(this.pattern)) {
+          this.addresses.push(address)
+        }
       })
     }
   }
