@@ -10,6 +10,7 @@ import {
   batchEnd,
   isBatching,
   isScopeBatching,
+  isUntracking
 } from '../reaction'
 
 export interface IComputed {
@@ -85,6 +86,7 @@ export const computed: IComputed = createAnnotation(
         }
       }
     }
+    reaction._name = 'ComputedReaction'
     reaction._context = context
     reaction._property = property
     reaction._active = false
@@ -99,7 +101,7 @@ export const computed: IComputed = createAnnotation(
     })
 
     function get() {
-      if (!reaction._active) {
+      if (!reaction._active && !isUntracking()) {
         if (hasRunningReaction()) {
           bindComputedReactions(reaction)
           reaction()
