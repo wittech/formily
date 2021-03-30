@@ -60,7 +60,8 @@ export type ObservableTraverse<Value = any, Target = any> = (
 
 export type Reaction = ((...args: any[]) => any) & {
   _name?: string
-  _active?: boolean
+  _isComputed?: boolean
+  _dirty?: boolean
   _context?: any
   _property?: PropertyKey
   _scheduler?: (reaction: Reaction) => void

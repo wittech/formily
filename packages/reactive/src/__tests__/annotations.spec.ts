@@ -146,19 +146,19 @@ test('computed annotation', () => {
   expect(compu.value).toEqual(66)
   expect(handler).toBeCalledTimes(6)
   expect(compu.value).toEqual(66)
-  expect(handler).toBeCalledTimes(7)
+  expect(handler).toBeCalledTimes(6)
   autorun(() => {
     compu.value
     runner3()
   })
   expect(compu.value).toEqual(66)
-  expect(handler).toBeCalledTimes(8)
+  expect(handler).toBeCalledTimes(6)
   expect(compu.value).toEqual(66)
-  expect(handler).toBeCalledTimes(8)
+  expect(handler).toBeCalledTimes(6)
   obs.aa = 11
-  expect(handler).toBeCalledTimes(9)
+  expect(handler).toBeCalledTimes(7)
   expect(compu.value).toEqual(44)
-  expect(handler).toBeCalledTimes(9)
+  expect(handler).toBeCalledTimes(7)
 })
 
 test('computed chain annotation', () => {
@@ -212,4 +212,31 @@ test('computed with array length',()=>{
   obs.arr = ['1']
   obs.arr = []
   expect(handler).toBeCalledTimes(6)
+})
+
+test('computed with computed array length',()=>{
+  const obs = model({
+    arr: [],
+    get arr2() {
+      return this.arr.map((item: number) => item + 1)
+    },
+    get isEmpty(){
+      return this.arr2.length === 0
+    },
+    get isNotEmpty(){
+      return !this.isEmpty
+    }
+  })
+  const handler = jest.fn()
+  const handler2 = jest.fn()
+  autorun(()=>{
+    handler(obs.isNotEmpty)
+    handler2(obs.arr2)
+  })
+  expect(handler).toBeCalledWith(false)
+  expect(handler).toBeCalledTimes(1)
+  obs.arr.push(1)
+  expect(handler).toBeCalledWith(true)
+  obs.arr = []
+  expect(handler).toBeCalledWith(false)
 })
