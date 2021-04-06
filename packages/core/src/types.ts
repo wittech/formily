@@ -248,6 +248,7 @@ export interface IVoidFieldFactoryProps<
 export interface IFieldRequests {
   validate?: NodeJS.Timeout
   loader?: NodeJS.Timeout
+  batch?: () => void
 }
 
 export interface IFieldCaches {
