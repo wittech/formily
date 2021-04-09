@@ -25,7 +25,7 @@ import {
 } from '@formily/antd'
 import { action } from '@formily/reactive'
 import { Card, Button, Spin } from 'antd'
-import { LoadingOutlined, UploadOutlined } from '@ant-design/icons'
+import { UploadOutlined } from '@ant-design/icons'
 import 'antd/lib/tabs/style'
 import 'antd/lib/button/style'
 
@@ -84,17 +84,13 @@ const SchemaField = createSchemaField({
         }, [])
       }
 
-      field.setComponentProps({
-        suffixIcon: <LoadingOutlined />,
-      })
+      field.loading = true
       fetch('//unpkg.com/china-location/dist/location.json')
         .then((res) => res.json())
         .then(
           action((data) => {
-            field.setDataSource(transform(data))
-            field.setComponentProps({
-              suffixIcon: undefined,
-            })
+            field.dataSource = transform(data)
+            field.loading = false
           })
         )
     },
@@ -257,7 +253,7 @@ export default () => {
                     }}
                     x-reactions={[
                       {
-                        fullfill: {
+                        fulfill: {
                           schema: {
                             title: '{{$self.query(".name").value() }}',
                           },
@@ -350,7 +346,7 @@ import {
 } from '@formily/antd'
 import { action } from '@formily/reactive'
 import { Card, Button, Spin } from 'antd'
-import { LoadingOutlined, UploadOutlined } from '@ant-design/icons'
+import { UploadOutlined } from '@ant-design/icons'
 import 'antd/lib/tabs/style'
 import 'antd/lib/button/style'
 
@@ -409,17 +405,13 @@ const SchemaField = createSchemaField({
         }, [])
       }
 
-      field.setComponentProps({
-        suffixIcon: <LoadingOutlined />,
-      })
+      field.loading = true
       fetch('//unpkg.com/china-location/dist/location.json')
         .then((res) => res.json())
         .then(
           action((data) => {
-            field.setDataSource(transform(data))
-            field.setComponentProps({
-              suffixIcon: undefined,
-            })
+            field.dataSource = transform(data)
+            field.loading = false
           })
         )
     },
@@ -541,7 +533,7 @@ const schema = {
             },
             'x-reactions': [
               {
-                fullfill: {
+                fulfill: {
                   schema: {
                     title: '{{$self.query(".name").value() }}',
                   },
@@ -689,7 +681,7 @@ import {
 } from '@formily/antd'
 import { action } from '@formily/reactive'
 import { Card, Button, Spin } from 'antd'
-import { LoadingOutlined, UploadOutlined } from '@ant-design/icons'
+import { UploadOutlined } from '@ant-design/icons'
 import 'antd/lib/tabs/style'
 import 'antd/lib/button/style'
 
@@ -734,17 +726,13 @@ const fetchAddress = (field) => {
     }, [])
   }
 
-  field.setComponentProps({
-    suffixIcon: <LoadingOutlined />,
-  })
+  field.loading = true
   fetch('//unpkg.com/china-location/dist/location.json')
     .then((res) => res.json())
     .then(
       action((data) => {
-        field.setDataSource(transform(data))
-        field.setComponentProps({
-          suffixIcon: undefined,
-        })
+        field.dataSource = transform(data)
+        field.loading = false
       })
     )
 }
@@ -1005,7 +993,7 @@ import {
 } from '@formily/antd'
 import { action } from '@formily/reactive'
 import { Card, Button, Spin } from 'antd'
-import { LoadingOutlined, UploadOutlined } from '@ant-design/icons'
+import { UploadOutlined } from '@ant-design/icons'
 import 'antd/lib/tabs/style'
 import 'antd/lib/button/style'
 
@@ -1066,17 +1054,13 @@ const SchemaField = createSchemaField({
         }, [])
       }
 
-      field.setComponentProps({
-        suffixIcon: <LoadingOutlined />,
-      })
+      field.loading = true
       fetch('//unpkg.com/china-location/dist/location.json')
         .then((res) => res.json())
         .then(
           action((data) => {
-            field.setDataSource(transform(data))
-            field.setComponentProps({
-              suffixIcon: undefined,
-            })
+            field.dataSource = transform(data)
+            field.loading = false
           })
         )
     },
@@ -1239,7 +1223,7 @@ export default () => {
                       }}
                       x-reactions={[
                         {
-                          fullfill: {
+                          fulfill: {
                             schema: {
                               title: '{{$self.query(".name").value() }}',
                             },
@@ -1327,7 +1311,7 @@ import {
 } from '@formily/antd'
 import { action } from '@formily/reactive'
 import { Card, Button, Spin } from 'antd'
-import { LoadingOutlined, UploadOutlined } from '@ant-design/icons'
+import { UploadOutlined } from '@ant-design/icons'
 import 'antd/lib/tabs/style'
 import 'antd/lib/button/style'
 
@@ -1388,17 +1372,13 @@ const SchemaField = createSchemaField({
         }, [])
       }
 
-      field.setComponentProps({
-        suffixIcon: <LoadingOutlined />,
-      })
+      field.loading = true
       fetch('//unpkg.com/china-location/dist/location.json')
         .then((res) => res.json())
         .then(
           action((data) => {
-            field.setDataSource(transform(data))
-            field.setComponentProps({
-              suffixIcon: undefined,
-            })
+            field.dataSource = transform(data)
+            field.loading = false
           })
         )
     },
@@ -1520,7 +1500,7 @@ const schema = {
             },
             'x-reactions': [
               {
-                fullfill: {
+                fulfill: {
                   schema: {
                     title: '{{$self.query(".name").value() }}',
                   },
@@ -1664,7 +1644,7 @@ import {
 } from '@formily/antd'
 import { action } from '@formily/reactive'
 import { Card, Button, Spin } from 'antd'
-import { LoadingOutlined, UploadOutlined } from '@ant-design/icons'
+import { UploadOutlined } from '@ant-design/icons'
 import 'antd/lib/tabs/style'
 import 'antd/lib/button/style'
 import './index.less'
@@ -1712,17 +1692,13 @@ const fetchAddress = (field) => {
     }, [])
   }
 
-  field.setComponentProps({
-    suffixIcon: <LoadingOutlined />,
-  })
+  field.loading = true
   fetch('//unpkg.com/china-location/dist/location.json')
     .then((res) => res.json())
     .then(
       action((data) => {
-        field.setDataSource(transform(data))
-        field.setComponentProps({
-          suffixIcon: undefined,
-        })
+        field.dataSource = transform(data)
+        field.loading = false
       })
     )
 }

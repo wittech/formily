@@ -29,6 +29,8 @@ import { ReservedProperties } from './constants'
 
 export const isHTMLInputEvent = (event: any, stopPropagation = true) => {
   if (event?.target) {
+    if (isValid(event.target.value) || isValid(event.target.checked))
+      return true
     if (
       event.target.tagName &&
       event.target.tagName !== 'INPUT' &&
