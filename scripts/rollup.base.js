@@ -1,3 +1,4 @@
+import path from 'path'
 import typescript from 'rollup-plugin-typescript2'
 import resolve from 'rollup-plugin-node-resolve'
 import commonjs from '@rollup/plugin-commonjs'
@@ -26,10 +27,12 @@ const presets = () => [
       '@alifd/next': 'Next',
       'mobx-react-lite': 'mobxReactLite',
       'react-dom': 'ReactDOM',
+      '@ant-design/icons': 'icons',
       '@vue/composition-api': 'VueCompositionAPI',
       '@formily/reactive-react': 'Formily.ReactiveReact',
       '@formily/reactive-vue': 'Formily.ReactiveVue',
       '@formily/reactive': 'Formily.Reactive',
+      '@formily/path': 'Formily.Path',
       '@formily/shared': 'Formily.Shared',
       '@formily/validator': 'Formily.Validator',
       '@formily/core': 'Formily.Core',
@@ -41,6 +44,19 @@ const presets = () => [
     }
   ),
 ]
+
+const inputFilePath = path.join(process.cwd(), 'src/index.ts')
+export const removeImportStyleFromInputFilePlugin = () => ({
+  name: 'remove-import-style-from-input-file',
+  transform(code, id) {
+    // 样式由 build:style 进行打包，所以要删除入口文件上的 `import './style'`
+    if (inputFilePath === id) {
+      return code.replace(`import './style';`, '')
+    }
+
+    return code
+  },
+})
 
 export default (filename, targetName, ...plugins) => [
   {
