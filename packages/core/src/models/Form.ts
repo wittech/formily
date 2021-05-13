@@ -71,7 +71,7 @@ export class Form<ValueType extends object = any> {
   initialValues: ValueType
   mounted: boolean
   unmounted: boolean
-  props: IFormProps
+  props: IFormProps<ValueType>
   heart: Heart
   graph: Graph
   fields: IFormFields = {}
@@ -79,7 +79,7 @@ export class Form<ValueType extends object = any> {
   indexes: Map<string, string> = new Map()
   disposers: (() => void)[] = []
 
-  constructor(props: IFormProps) {
+  constructor(props: IFormProps<ValueType>) {
     this.initialize(props)
     this.makeInitialValues()
     this.makeObservable()
@@ -87,7 +87,7 @@ export class Form<ValueType extends object = any> {
     this.onInit()
   }
 
-  protected initialize(props: IFormProps) {
+  protected initialize(props: IFormProps<ValueType>) {
     this.id = uid()
     this.props = { ...props }
     this.initialized = false
@@ -582,13 +582,13 @@ export class Form<ValueType extends object = any> {
     }
   }
 
-  setState: IModelSetter<IFormState> = modelStateSetter(this)
+  setState: IModelSetter<IFormState<ValueType>> = modelStateSetter(this)
 
-  getState: IModelGetter<IFormState> = modelStateGetter(this)
+  getState: IModelGetter<IFormState<ValueType>> = modelStateGetter(this)
 
-  setFormState: IModelSetter<IFormState> = modelStateSetter(this)
+  setFormState: IModelSetter<IFormState<ValueType>> = modelStateSetter(this)
 
-  getFormState: IModelGetter<IFormState> = modelStateGetter(this)
+  getFormState: IModelGetter<IFormState<ValueType>> = modelStateGetter(this)
 
   setFieldState: IFieldStateSetter = createFieldStateSetter(this)
 
@@ -637,10 +637,13 @@ export class Form<ValueType extends object = any> {
     this.notify(LifeCycleTypes.ON_FORM_SUBMIT_VALIDATE_END)
     let results: any
     try {
-      if (isFn(onSubmit) && this.valid) {
-        results = await onSubmit(toJS(this.values))
-      } else if (this.invalid) {
+      if (this.invalid) {
         throw this.errors
+      }
+      if (isFn(onSubmit)) {
+        results = await onSubmit(toJS(this.values))
+      } else {
+        results = toJS(this.values)
       }
       this.notify(LifeCycleTypes.ON_FORM_SUBMIT_SUCCESS)
     } catch (e) {

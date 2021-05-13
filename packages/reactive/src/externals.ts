@@ -13,6 +13,7 @@ import { Annotation } from './types'
 
 const RAW_TYPE = Symbol('RAW_TYPE')
 const OBSERVABLE_TYPE = Symbol('OBSERVABLE_TYPE')
+const hasOwnProperty = Object.prototype.hasOwnProperty
 
 export const isObservable = (target: any) => {
   return ProxyRaw.has(target)
@@ -79,20 +80,29 @@ export const raw = <T>(target: T): T => ProxyRaw.get(target as any)
 
 export const toJS = <T>(values: T): T => {
   const visited = new WeakSet<any>()
-
-  const tojs: typeof toJS = (values) => {
-    if (visited.has(values)) {
-      return values
-    } else if (!isObservable(values)) {
-      return values
-    } else if (isArr(values)) {
-      visited.add(values)
+  const tojs: typeof toJS = (values: any) => {
+    if (isArr(values)) {
+      if (visited.has(values)) {
+        return values
+      }
+      const originValues = values
+      if (ProxyRaw.has(values as any)) {
+        values = ProxyRaw.get(values as any)
+      }
+      visited.add(originValues)
       const res: any = []
-      values.forEach((item) => {
+      values.forEach((item: any) => {
         res.push(tojs(item))
       })
       return res
     } else if (isPlainObj(values)) {
+      if (visited.has(values)) {
+        return values
+      }
+      const originValues = values
+      if (ProxyRaw.has(values as any)) {
+        values = ProxyRaw.get(values as any)
+      }
       if ('$$typeof' in values && '_owner' in values) {
         return values
       } else if (values['_isAMomentObject']) {
@@ -104,10 +114,10 @@ export const toJS = <T>(values: T): T => {
       } else if (isFn(values['toJSON'])) {
         return values['toJSON']()
       } else {
-        visited.add(values)
+        visited.add(originValues)
         const res: any = {}
         for (const key in values) {
-          if (Object.hasOwnProperty.call(values, key)) {
+          if (hasOwnProperty.call(values, key)) {
             res[key] = tojs(values[key])
           }
         }
