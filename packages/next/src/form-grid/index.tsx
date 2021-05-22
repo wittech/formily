@@ -2,7 +2,7 @@ import React, { useLayoutEffect, useRef, useState, useContext } from 'react'
 import { usePrefixCls } from '../__builtins__'
 import cls from 'classnames'
 import { isValid, isNum, isBool, isEqual } from '@formily/shared'
-import ResizeObserver from 'resize-observer-polyfill'
+import { ResizeObserver } from '@juggle/resize-observer'
 import { FormGridContext } from './context'
 
 interface ILayout {
@@ -264,9 +264,9 @@ export const useGridSpan = (gridSpan = 1) => {
       return gridSpan
     } else {
       if (isValid(maxColumns)) {
-        return Math.min(calc, columns, maxColumns)
+        return Math.min(calc, gridSpan, maxColumns)
       }
-      return Math.min(calc, columns)
+      return Math.min(calc, gridSpan)
     }
   } else {
     if (Math.min(calc, columns) >= gridSpan) {
