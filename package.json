@@ -44,7 +44,7 @@
     "prelease:force": "lerna publish from-package --yes --dist-tag next && ts-node scripts/release release",
     "release": "lerna publish",
     "prelease": "lerna publish --dist-tag next",
-    "lint": "eslint --ext .ts,.tsx,.js \"packages/*/src/**.@(ts|tsx|js)\" \"scripts/**/*.js\" --fix",
+    "lint": "eslint --ext .ts,.tsx,.js  --fix",
     "postinstall": "opencollective-postinstall"
   },
   "resolutions": {
@@ -121,6 +121,7 @@
     "param-case": "^3.0.4",
     "prettier": "^2.2.1",
     "pretty-format": "^24.0.0",
+    "pretty-quick": "^3.1.0",
     "raw-loader": "^4.0.0",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
@@ -162,16 +163,13 @@
     }
   },
   "lint-staged": {
-    "packages/*/src/**.@(ts|tsx|js)": [
-      "npm run lint",
+    "*.{ts,tsx,js}": [
+      "eslint --ext .ts,.tsx,.js",
+      "pretty-quick --staged",
       "git add"
     ],
-    "scripts/**.@(ts|tsx|js)": [
-      "npm run lint",
-      "git add"
-    ],
-    "packages/!(*vue)/**/*.md": [
-      "prettier --write",
+    "*.md": [
+      "pretty-quick --staged",
       "git add"
     ]
   },
