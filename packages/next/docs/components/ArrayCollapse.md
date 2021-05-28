@@ -14,10 +14,10 @@ import {
   ArrayCollapse,
   FormButtonGroup,
   Submit,
-} from '@formily/antd'
+} from '@formily/next'
 import { createForm } from '@formily/core'
 import { FormProvider, createSchemaField } from '@formily/react'
-import { Button } from 'antd'
+import { Button } from '@alifd/next'
 
 const SchemaField = createSchemaField({
   components: {
@@ -45,7 +45,7 @@ export default () => {
           <SchemaField.Void
             x-component="ArrayCollapse.CollapsePanel"
             x-component-props={{
-              header: '字符串数组',
+              title: '字符串数组',
             }}
           >
             <SchemaField.Void x-component="ArrayCollapse.Index" />
@@ -74,7 +74,7 @@ export default () => {
           <SchemaField.Object
             x-component="ArrayCollapse.CollapsePanel"
             x-component-props={{
-              header: '对象数组',
+              title: '对象数组',
             }}
           >
             <SchemaField.Void x-component="ArrayCollapse.Index" />
@@ -106,7 +106,7 @@ export default () => {
           <SchemaField.Void
             x-component="ArrayCollapse.CollapsePanel"
             x-component-props={{
-              header: '字符串数组',
+              title: '字符串数组',
             }}
           >
             <SchemaField.Void x-component="ArrayCollapse.Index" />
@@ -165,7 +165,7 @@ import {
   ArrayCollapse,
   FormButtonGroup,
   Submit,
-} from '@formily/antd'
+} from '@formily/next'
 import { createForm } from '@formily/core'
 import { FormProvider, createSchemaField } from '@formily/react'
 
@@ -191,7 +191,7 @@ const schema = {
         type: 'object',
         'x-component': 'ArrayCollapse.CollapsePanel',
         'x-component-props': {
-          header: '字符串数组',
+          title: '字符串数组',
         },
         properties: {
           index: {
@@ -236,7 +236,7 @@ const schema = {
         type: 'object',
         'x-component': 'ArrayCollapse.CollapsePanel',
         'x-component-props': {
-          header: '对象数组',
+          title: '对象数组',
         },
         properties: {
           index: {
@@ -281,7 +281,7 @@ const schema = {
         type: 'object',
         'x-component': 'ArrayCollapse.CollapsePanel',
         'x-component-props': {
-          header: '对象数组',
+          title: '对象数组',
         },
         properties: {
           index: {
@@ -345,7 +345,7 @@ import {
   ArrayCollapse,
   FormButtonGroup,
   Submit,
-} from '@formily/antd'
+} from '@formily/next'
 import { createForm, onFieldChange, onFieldReact } from '@formily/core'
 import { FormProvider, createSchemaField } from '@formily/react'
 
@@ -388,7 +388,7 @@ export default () => {
           <SchemaField.Object
             x-component="ArrayCollapse.CollapsePanel"
             x-component-props={{
-              header: '对象数组',
+              title: '对象数组',
             }}
           >
             <SchemaField.Void x-component="ArrayCollapse.Index" />
@@ -450,7 +450,7 @@ import {
   ArrayCollapse,
   FormButtonGroup,
   Submit,
-} from '@formily/antd'
+} from '@formily/next'
 import { createForm } from '@formily/core'
 import { FormProvider, createSchemaField } from '@formily/react'
 
@@ -476,7 +476,7 @@ const schema = {
         type: 'object',
         'x-component': 'ArrayCollapse.CollapsePanel',
         'x-component-props': {
-          header: '对象数组',
+          title: '对象数组',
         },
         properties: {
           index: {
@@ -557,11 +557,17 @@ export default () => {
 
 ### ArrayCollapse
 
-参考 https://ant.design/components/collapse-cn/
+参考 https://fusion.design/pc/component/collapse
+
+扩展属性
+
+| 属性名                | 类型   | 描述                | 默认值 |
+| --------------------- | ------ | ------------------- | ------ |
+| defaultOpenPanelCount | number | 默认展开 Panel 数量 | 5      |
 
 ### ArrayCollapse.CollapsePanel
 
-参考 https://ant.design/components/collapse-cn/
+参考 https://fusion.design/pc/component/collapse
 
 ### ArrayCollapse.Addition
 
@@ -574,7 +580,7 @@ export default () => {
 | title  | ReactText             | 文案     |          |
 | method | `'push' \| 'unshift'` | 添加方式 | `'push'` |
 
-其余参考 https://ant.design/components/button-cn/
+其余参考 https://fusion.design/pc/component/basic/button
 
 注意：title 属性可以接收 Field 模型中的 title 映射，也就是在 Field 上传 title 也是生效的
 
