@@ -125,7 +125,6 @@ export class Form<ValueType extends object = any> {
   }
 
   protected makeObservable() {
-    if (this.props.controlled) return
     define(this, {
       fields: observable.shallow,
       initialized: observable.ref,
@@ -169,7 +168,7 @@ export class Form<ValueType extends object = any> {
   }
 
   protected makeReactive() {
-    if (this.props.controlled) return
+    if (this.props.designable) return
     this.disposers.push(
       observe(this.initialValues, (change) => {
         if (change.type === 'add' || change.type === 'set') {
@@ -302,13 +301,13 @@ export class Form<ValueType extends object = any> {
     const address = FormPath.parse(props.basePath).concat(props.name)
     const identifier = address.toString()
     if (!identifier) return
-    if (!this.fields[identifier] || this.props.controlled) {
+    if (!this.fields[identifier] || this.props.designable) {
       batch(() => {
         this.fields[identifier] = new Field(
           address,
           props,
           this,
-          this.props.controlled
+          this.props.designable
         )
       })
       this.notify(LifeCycleTypes.ON_FORM_GRAPH_CHANGE)
@@ -325,13 +324,13 @@ export class Form<ValueType extends object = any> {
     const address = FormPath.parse(props.basePath).concat(props.name)
     const identifier = address.toString()
     if (!identifier) return
-    if (!this.fields[identifier] || this.props.controlled) {
+    if (!this.fields[identifier] || this.props.designable) {
       batch(() => {
         this.fields[identifier] = new ArrayField(
           address,
           props,
           this,
-          this.props.controlled
+          this.props.designable
         )
       })
       this.notify(LifeCycleTypes.ON_FORM_GRAPH_CHANGE)
@@ -348,13 +347,13 @@ export class Form<ValueType extends object = any> {
     const address = FormPath.parse(props.basePath).concat(props.name)
     const identifier = address.toString()
     if (!identifier) return
-    if (!this.fields[identifier] || this.props.controlled) {
+    if (!this.fields[identifier] || this.props.designable) {
       batch(() => {
         this.fields[identifier] = new ObjectField(
           address,
           props,
           this,
-          this.props.controlled
+          this.props.designable
         )
       })
       this.notify(LifeCycleTypes.ON_FORM_GRAPH_CHANGE)
@@ -371,13 +370,13 @@ export class Form<ValueType extends object = any> {
     const address = FormPath.parse(props.basePath).concat(props.name)
     const identifier = address.toString()
     if (!identifier) return
-    if (!this.fields[identifier] || this.props.controlled) {
+    if (!this.fields[identifier] || this.props.designable) {
       batch(() => {
         this.fields[identifier] = new VoidField(
           address,
           props,
           this,
-          this.props.controlled
+          this.props.designable
         )
       })
       this.notify(LifeCycleTypes.ON_FORM_GRAPH_CHANGE)

@@ -104,13 +104,13 @@ export class Field<
     address: FormPathPattern,
     props: IFieldProps<Decorator, Component, TextType, ValueType>,
     form: Form,
-    controlled: boolean
+    designable: boolean
   ) {
     this.initialize(props, form)
     this.makeIndexes(address)
-    this.makeObservable(controlled)
-    this.makeReactive(controlled)
-    this.onInit()
+    this.makeObservable(designable)
+    this.makeReactive(designable)
+    this.onInit(designable)
   }
 
   protected makeIndexes(address: FormPathPattern) {
@@ -151,8 +151,8 @@ export class Field<
     this.component = toArr(this.props.component)
   }
 
-  protected makeObservable(controlled: boolean) {
-    if (controlled) return
+  protected makeObservable(designable: boolean) {
+    if (designable) return
     define(this, {
       title: observable.ref,
       description: observable.ref,
@@ -224,8 +224,8 @@ export class Field<
     })
   }
 
-  protected makeReactive(controlled: boolean) {
-    if (controlled) return
+  protected makeReactive(designable: boolean) {
+    if (designable) return
     this.disposers.push(
       reaction(
         () => this.value,
@@ -245,13 +245,15 @@ export class Field<
       reaction(
         () => this.display,
         (display) => {
-          if (display === 'none') {
-            this.caches.value = toJS(this.value)
-            this.form.deleteValuesIn(this.path)
-          } else if (display === 'visible') {
+          if (display === 'visible') {
             if (isEmpty(this.value)) {
               this.setValue(this.caches.value)
               this.caches.value = undefined
+            }
+          } else {
+            this.caches.value = toJS(this.value)
+            if (display === 'none') {
+              this.form.deleteValuesIn(this.path)
             }
           }
           if (display === 'none' || display === 'hidden') {
@@ -662,10 +664,10 @@ export class Field<
 
   getState: IModelGetter<IFieldState> = modelStateGetter(this)
 
-  onInit = () => {
+  onInit = (designable: boolean) => {
     this.initialized = true
     batch.scope(() => {
-      initFieldValue(this)
+      initFieldValue(this, designable)
     })
     batch.scope(() => {
       initFieldUpdate(this)

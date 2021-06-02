@@ -9,6 +9,7 @@ import {
   isArr,
   isPlainObj,
   toArr,
+  isNumberLike,
 } from '@formily/shared'
 import { ValidatorTriggerType, validate } from '@formily/validator'
 import { action, batch, toJS } from '@formily/reactive'
@@ -63,16 +64,20 @@ export const buildFieldPath = (field: GeneralField) => {
     const currentPath = path.concat([key])
     const currentAddress = field.address.slice(0, index + 1)
     const current = field.form.fields[currentAddress.toString()]
+    if (prevArray) {
+      prevArray = false
+      return path
+    }
     if (index >= field.address.length - 1) {
       if (isVoidField(field)) {
         return currentPath
       }
-      if (prevArray) return path
       return currentPath
     }
     if (isVoidField(current)) {
-      const parent = field.form.fields[path.toString()]
-      if (isArrayField(parent)) {
+      const parentAddress = field.address.slice(0, index)
+      const parent = field.form.fields[parentAddress.toString()]
+      if (isArrayField(parent) && isNumberLike(key)) {
         prevArray = true
         return currentPath
       }
@@ -357,7 +362,7 @@ export const isEmptyWithField = (field: GeneralField, value: any) => {
   return !isValid(value)
 }
 
-export const initFieldValue = (field: Field) => {
+export const initFieldValue = (field: Field, designable: boolean) => {
   GlobalState.initializing = true
   if (isEmptyWithField(field, field.initialValue)) {
     if (isValid(field.props.initialValue)) {
@@ -376,6 +381,14 @@ export const initFieldValue = (field: Field) => {
       field.value = field.props.value
     } else if (isValid(field.props.initialValue)) {
       field.value = field.props.initialValue
+    }
+  }
+  if (designable) {
+    if (isValid(field.props.initialValue)) {
+      field.initialValue = field.props.initialValue
+    }
+    if (isValid(field.props.value)) {
+      field.value = field.props.value
     }
   }
   GlobalState.initializing = false

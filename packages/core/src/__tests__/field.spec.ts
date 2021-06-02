@@ -65,6 +65,91 @@ test('create field props', () => {
   expect(field5.initialValue).toEqual(123)
 })
 
+test('field display and value', () => {
+  const form = attach(createForm())
+  const objectField = attach(
+    form.createObjectField({
+      name: 'object',
+    })
+  )
+  const arrayField = attach(
+    form.createArrayField({
+      name: 'array',
+    })
+  )
+  const valueField = attach(
+    form.createField({
+      name: 'value',
+    })
+  )
+  expect(objectField.value).toEqual({})
+  expect(arrayField.value).toEqual([])
+  expect(valueField.value).toBeUndefined()
+
+  objectField.hidden = true
+  arrayField.hidden = true
+  valueField.hidden = true
+  expect(objectField.value).toEqual({})
+  expect(arrayField.value).toEqual([])
+  expect(valueField.value).toBeUndefined()
+
+  objectField.hidden = false
+  arrayField.hidden = false
+  valueField.hidden = false
+  expect(objectField.value).toEqual({})
+  expect(arrayField.value).toEqual([])
+  expect(valueField.value).toBeUndefined()
+
+  objectField.visible = false
+  arrayField.visible = false
+  valueField.visible = false
+  expect(objectField.value).toBeUndefined()
+  expect(arrayField.value).toBeUndefined()
+  expect(valueField.value).toBeUndefined()
+
+  objectField.visible = true
+  arrayField.visible = true
+  valueField.visible = true
+  expect(objectField.value).toEqual({})
+  expect(arrayField.value).toEqual([])
+  expect(valueField.value).toBeUndefined()
+
+  objectField.value = { value: '123' }
+  arrayField.value = ['123']
+  valueField.value = '123'
+  expect(objectField.value).toEqual({ value: '123' })
+  expect(arrayField.value).toEqual(['123'])
+  expect(valueField.value).toEqual('123')
+
+  objectField.hidden = true
+  arrayField.hidden = true
+  valueField.hidden = true
+  expect(objectField.value).toEqual({ value: '123' })
+  expect(arrayField.value).toEqual(['123'])
+  expect(valueField.value).toEqual('123')
+
+  objectField.hidden = false
+  arrayField.hidden = false
+  valueField.hidden = false
+  expect(objectField.value).toEqual({ value: '123' })
+  expect(arrayField.value).toEqual(['123'])
+  expect(valueField.value).toEqual('123')
+
+  objectField.visible = false
+  arrayField.visible = false
+  valueField.visible = false
+  expect(objectField.value).toBeUndefined()
+  expect(arrayField.value).toBeUndefined()
+  expect(valueField.value).toBeUndefined()
+
+  objectField.visible = true
+  arrayField.visible = true
+  valueField.visible = true
+  expect(objectField.value).toEqual({ value: '123' })
+  expect(arrayField.value).toEqual(['123'])
+  expect(valueField.value).toEqual('123')
+})
+
 test('nested display/pattern', () => {
   const form = attach(createForm())
   const object_ = attach(
@@ -878,4 +963,119 @@ test('initialValue', () => {
   expect(form.initialValues.aaa).toEqual(123)
   expect(field.value).toEqual(123)
   expect(field.initialValue).toEqual(123)
+})
+
+test('array path calculation with none index', async () => {
+  const form = attach(createForm())
+  const array = attach(
+    form.createArrayField({
+      name: 'array',
+    })
+  )
+  await array.push({})
+  const input = attach(
+    form.createField({
+      name: '0.input',
+      basePath: 'array',
+    })
+  )
+  expect(input.path.toString()).toEqual('array.0.input')
+})
+
+test('array path calculation with none index and void nested', async () => {
+  const form = attach(createForm())
+  const array = attach(
+    form.createArrayField({
+      name: 'array',
+    })
+  )
+  await array.push({})
+  attach(
+    form.createVoidField({
+      name: '0.column',
+      basePath: 'array',
+    })
+  )
+  const input = attach(
+    form.createField({
+      name: 'input',
+      basePath: 'array.0.column',
+    })
+  )
+  expect(input.path.toString()).toEqual('array.0.input')
+})
+
+test('array path calculation with object index', async () => {
+  const form = attach(createForm())
+  const array = attach(
+    form.createArrayField({
+      name: 'array',
+    })
+  )
+  await array.push({})
+  attach(
+    form.createObjectField({
+      name: '0',
+      basePath: 'array',
+    })
+  )
+  const input = attach(
+    form.createField({
+      name: 'input',
+      basePath: 'array.0',
+    })
+  )
+  expect(input.path.toString()).toEqual('array.0.input')
+})
+
+test('array path calculation with void index', async () => {
+  const form = attach(createForm())
+  const array = attach(
+    form.createArrayField({
+      name: 'array',
+    })
+  )
+  await array.push('')
+  attach(
+    form.createVoidField({
+      name: '0',
+      basePath: 'array',
+    })
+  )
+  const input = attach(
+    form.createField({
+      name: 'input',
+      basePath: 'array.0',
+    })
+  )
+  expect(input.path.toString()).toEqual('array.0')
+})
+
+test('array path calculation with void index and void wrapper', async () => {
+  const form = attach(createForm())
+  attach(
+    form.createVoidField({
+      name: 'layout',
+    })
+  )
+  const array_in_layout = attach(
+    form.createArrayField({
+      name: 'array_in_layout',
+      basePath: 'layout',
+    })
+  )
+  await array_in_layout.push('')
+  attach(
+    form.createVoidField({
+      name: '0',
+      basePath: 'layout.array_in_layout',
+    })
+  )
+  const input = attach(
+    form.createField({
+      name: 'input',
+      basePath: 'layout.array_in_layout.0',
+    })
+  )
+  expect(input.path.toString()).toEqual('array_in_layout.0')
 })
