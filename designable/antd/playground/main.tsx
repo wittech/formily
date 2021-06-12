@@ -31,9 +31,9 @@ const DesignableField = createDesignableField()
 
 const Logo: React.FC = () => (
   <div style={{ display: 'flex', alignItems: 'center', fontSize: 14 }}>
-    <IconWidget
-      infer="Logo"
-      style={{ margin: 10, height: 24, width: 'auto' }}
+    <img
+      src="//img.alicdn.com/imgextra/i2/O1CN01Kq3OHU1fph6LGqjIz_!!6000000004056-55-tps-1141-150.svg"
+      style={{ margin: 10, height: 18, width: 'auto' }}
     />
   </div>
 )
@@ -63,6 +63,7 @@ const App = () => {
           >
             <DragSourceWidget title="输入组件" name="inputs" />
             <DragSourceWidget title="布局组件" name="layouts" />
+            <DragSourceWidget title="数组组件" name="arrays" />
           </CompositePanel.Item>
           <CompositePanel.Item
             title="大纲树"
