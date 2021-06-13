@@ -38,11 +38,11 @@ import {
 import { clone } from '@formily/shared'
 import * as defaultSchema from '../../schemas'
 import { Card, Slider, Rate } from 'antd'
-import { createFormContainer } from '../FormContainer'
+import { createDesignableContainer } from '../DesignableContainer'
 import { FormItemSwitcher } from '../FormItemSwitcher'
-import { FormTab as DesignableFormTab } from '../FormTab'
-import { FormCollapse as DesignableFormCollapse } from '../FormCollapse'
-import { EmptyObject as DesignableEmptyObject } from '../EmptyObject'
+import { DesignableFormTab } from '../DesignableFormTab'
+import { DesignableFormCollapse } from '../DesignableFormCollapse'
+import { DesignableObject } from '../DesignableObject'
 
 Schema.silent()
 
@@ -60,7 +60,8 @@ export interface IDesignableFieldProps {
   dropReactionComponents?: string[]
   selfRenderChildrenComponents?: string[]
   inlineChildrenLayoutComponents?: string[]
-  restricts?: Record<string, string[]>
+  restrictChildrenComponents?: Record<string, string[]>
+  restrictParentComponents?: Record<string, string[]>
 }
 
 export const createDesignableField = (options: IDesignableFieldProps = {}) => {
@@ -93,15 +94,19 @@ export const createDesignableField = (options: IDesignableFieldProps = {}) => {
       'FormGrid',
       'Space',
     ],
-    restricts: {
+    restrictChildrenComponents: {
       FormTab: ['FormTab.TabPane'],
-      FormCollapse: ['FormTab.CollapsePanel'],
+      FormCollapse: ['FormCollapse.CollapsePanel'],
+    },
+    restrictParentComponents: {
+      'FormTab.TabPane': ['FormTab'],
+      'FormCollapse.CollapsePanel': ['FormCollapse'],
     },
     components: {
       ...options.components,
-      Space: createFormContainer(Space),
-      FormGrid: createFormContainer(FormGrid),
-      FormLayout: createFormContainer(FormLayout),
+      Space: createDesignableContainer(Space),
+      FormGrid: createDesignableContainer(FormGrid),
+      FormLayout: createDesignableContainer(FormLayout),
       FormTab: DesignableFormTab,
       FormCollapse: DesignableFormCollapse,
       FormItem,
@@ -162,11 +167,11 @@ export const createDesignableField = (options: IDesignableFieldProps = {}) => {
     const fieldProps = getFieldProps()
     if (props.type === 'object') {
       return (
-        <DesignableEmptyObject>
+        <DesignableObject>
           <ObjectField {...fieldProps} name={node.id}>
             {props.children}
           </ObjectField>
-        </DesignableEmptyObject>
+        </DesignableObject>
       )
     } else if (props.type === 'array') {
       return <ArrayField {...fieldProps} name={node.id} />
@@ -355,18 +360,38 @@ export const createDesignableField = (options: IDesignableFieldProps = {}) => {
 
   const calculateRestricts = (target: TreeNode, source: TreeNode[]) => {
     const targetComponent = target.props['x-component']
-    const restricts = realOptions.restricts?.[targetComponent]
-    if (restricts) {
+    const restrictChildrenComponents =
+      realOptions.restrictChildrenComponents?.[targetComponent]
+    if (restrictChildrenComponents?.length) {
       if (
-        source.every((node) => restricts.includes(node.props['x-component'])) ||
+        source.every((node) =>
+          restrictChildrenComponents.includes(node.props['x-component'])
+        ) ||
         target.children.length === 0
       ) {
         return true
       }
       return false
     }
+    if (target.props['type'] === 'object') return true
+    if (
+      targetComponent &&
+      source.every((node) => {
+        const restrictParentComponents =
+          realOptions.restrictParentComponents?.[node.props['x-component']]
+        if (restrictParentComponents?.length) {
+          if (restrictParentComponents.includes(targetComponent)) {
+            return true
+          }
+          return false
+        }
+        return true
+      })
+    ) {
+      return true
+    }
 
-    return true
+    return false
   }
 
   GlobalRegistry.registerDesignerProps({
