@@ -602,6 +602,7 @@ export class Form<ValueType extends object = any> {
   }
 
   onUnmount = () => {
+    this.disposers.forEach((dispose) => dispose())
     this.query('*').forEach((field) => field.dispose())
     this.unmounted = true
     this.fields = {}
