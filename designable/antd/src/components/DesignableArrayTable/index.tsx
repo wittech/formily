@@ -1,146 +1,145 @@
 import React from 'react'
 import { Table, TableProps } from 'antd'
 import { Droppable } from '../Droppable'
-import { TreeNode, AppendNodeEvent } from '@designable/core'
-import {
-  useTreeNode,
-  useDesigner,
-  TreeNodeWidget,
-  useNodeIdProps,
-} from '@designable/react'
+import { TreeNode } from '@designable/core'
+import { useTreeNode, TreeNodeWidget, useNodeIdProps } from '@designable/react'
 import { ArrayBase } from '@formily/antd'
 import { observer } from '@formily/react'
 import { LoadTemplate } from '../LoadTemplate'
 import cls from 'classnames'
+import {
+  createNodeId,
+  queryNodesByComponentPath,
+  hasNodeByComponentPath,
+  findNodeByComponentPath,
+  createEnsureTypeItemsNode,
+} from '../../shared'
+import { useDropTemplate } from '../../hooks'
 
-const parseColumns = (nodes: TreeNode[]) => {
-  return nodes.filter((node) => {
-    return node.props['x-component'] === 'ArrayTable.Column'
-  })
-}
-
-const parseAdditionComponents = (nodes: TreeNode[]) => {
-  for (let i = 0; i < nodes.length; i++) {
-    if (nodes[i].props['x-component'] === 'ArrayTable.Addition')
-      return <TreeNodeWidget node={nodes[i]} />
-  }
-}
+const ensureObjectItemsNode = createEnsureTypeItemsNode('object')
 
 export const DesignableArrayTable: React.FC<TableProps<any>> = observer(
   (props) => {
     const node = useTreeNode()
     const nodeId = useNodeIdProps()
-    const designer = useDesigner((designer) => {
-      return designer.subscribeTo(AppendNodeEvent, (event) => {
-        const { source, target } = event.data
-        if (Array.isArray(target)) return
-        if (!Array.isArray(source)) return
-        if (target.props['x-component'] === 'ArrayTable') {
-          if (
-            source.every(
-              (node) => node.props['x-component'] !== 'ArrayTable.Column'
-            )
-          ) {
-            const sortHandleNode = new TreeNode({
-              componentName: 'DesignableField',
-              props: {
-                type: 'void',
-                'x-component': 'ArrayTable.Column',
-              },
-              children: [
-                {
-                  componentName: 'DesignableField',
-                  props: {
-                    type: 'void',
-                    'x-component': 'ArrayTable.SortHandle',
-                  },
-                },
-              ],
-            })
-            const indexNode = new TreeNode({
-              componentName: 'DesignableField',
-              props: {
-                type: 'void',
-                'x-component': 'ArrayTable.Column',
-              },
-              children: [
-                {
-                  componentName: 'DesignableField',
-                  props: {
-                    type: 'void',
-                    'x-component': 'ArrayTable.Index',
-                  },
-                },
-              ],
-            })
-            const columnNode = new TreeNode({
-              componentName: 'DesignableField',
-              props: {
-                type: 'void',
-                'x-component': 'ArrayTable.Column',
-              },
-            })
-            const additionNode = new TreeNode({
-              componentName: 'DesignableField',
-              props: {
-                type: 'void',
-                title: 'Addition',
-                'x-component': 'ArrayTable.Addition',
-              },
-            })
-            const operationNode = new TreeNode({
-              componentName: 'DesignableField',
-              props: {
-                type: 'void',
-                'x-component': 'ArrayTable.Column',
-              },
-              children: [
-                {
-                  componentName: 'DesignableField',
-                  props: {
-                    type: 'void',
-                    'x-component': 'ArrayTable.Remove',
-                  },
-                },
-                {
-                  componentName: 'DesignableField',
-                  props: {
-                    type: 'void',
-                    'x-component': 'ArrayTable.MoveDown',
-                  },
-                },
-                {
-                  componentName: 'DesignableField',
-                  props: {
-                    type: 'void',
-                    'x-component': 'ArrayTable.MoveUp',
-                  },
-                },
-              ],
-            })
-            target.appendNode(
-              sortHandleNode,
-              indexNode,
-              columnNode,
-              additionNode,
-              operationNode
-            )
-            columnNode.appendNode(...source)
-          }
-        }
+    const designer = useDropTemplate('ArrayTable', (source) => {
+      const sortHandleNode = new TreeNode({
+        componentName: 'DesignableField',
+        props: {
+          type: 'void',
+          'x-component': 'ArrayTable.Column',
+        },
+        children: [
+          {
+            componentName: 'DesignableField',
+            props: {
+              type: 'void',
+              'x-component': 'ArrayTable.SortHandle',
+            },
+          },
+        ],
       })
+      const indexNode = new TreeNode({
+        componentName: 'DesignableField',
+        props: {
+          type: 'void',
+          'x-component': 'ArrayTable.Column',
+        },
+        children: [
+          {
+            componentName: 'DesignableField',
+            props: {
+              type: 'void',
+              'x-component': 'ArrayTable.Index',
+            },
+          },
+        ],
+      })
+      const columnNode = new TreeNode({
+        componentName: 'DesignableField',
+        props: {
+          type: 'void',
+          'x-component': 'ArrayTable.Column',
+        },
+        children: source.map((node) => {
+          node.props.title = undefined
+          return node
+        }),
+      })
+
+      const operationNode = new TreeNode({
+        componentName: 'DesignableField',
+        props: {
+          type: 'void',
+          'x-component': 'ArrayTable.Column',
+        },
+        children: [
+          {
+            componentName: 'DesignableField',
+            props: {
+              type: 'void',
+              'x-component': 'ArrayTable.Remove',
+            },
+          },
+          {
+            componentName: 'DesignableField',
+            props: {
+              type: 'void',
+              'x-component': 'ArrayTable.MoveDown',
+            },
+          },
+          {
+            componentName: 'DesignableField',
+            props: {
+              type: 'void',
+              'x-component': 'ArrayTable.MoveUp',
+            },
+          },
+        ],
+      })
+      const objectNode = new TreeNode({
+        componentName: 'DesignableField',
+        props: {
+          type: 'object',
+        },
+        children: [sortHandleNode, indexNode, columnNode, operationNode],
+      })
+      const additionNode = new TreeNode({
+        componentName: 'DesignableField',
+        props: {
+          type: 'void',
+          title: 'Addition',
+          'x-component': 'ArrayTable.Addition',
+        },
+      })
+      return [objectNode, additionNode]
     })
-    const columns = parseColumns(node.children)
-    const addition = parseAdditionComponents(node.children)
+    const columns = queryNodesByComponentPath(node, [
+      'ArrayTable',
+      '*',
+      'ArrayTable.Column',
+    ])
+    const additions = queryNodesByComponentPath(node, [
+      'ArrayTable',
+      'ArrayTable.Addition',
+    ])
     const defaultRowKey = () => {
       return node.id
     }
-    const getColumnId = (props: any) => {
-      return {
-        [designer.props.nodeIdAttrName]:
-          props.className.match(/data-id\:([^\s]+)/)?.[1],
-      }
+    const createColumnId = (props: any) => {
+      return createNodeId(
+        designer,
+        props.className.match(/data-id\:([^\s]+)/)?.[1]
+      )
     }
+
+    useDropTemplate('ArrayTable.Column', (source) => {
+      return source.map((node) => {
+        node.props.title = undefined
+        return node
+      })
+    })
+
     return (
       <div {...nodeId}>
         <ArrayBase disabled>
@@ -148,6 +147,7 @@ export const DesignableArrayTable: React.FC<TableProps<any>> = observer(
             size="small"
             bordered
             {...props}
+            scroll={{ x: '100%' }}
             className={cls('ant-formily-array-table', props.className)}
             style={{ marginBottom: 10, ...props.style }}
             rowKey={defaultRowKey}
@@ -157,7 +157,7 @@ export const DesignableArrayTable: React.FC<TableProps<any>> = observer(
               header: {
                 cell: (props: any) => {
                   return (
-                    <th {...props} {...getColumnId(props)}>
+                    <th {...props} {...createColumnId(props)}>
                       {props.children}
                     </th>
                   )
@@ -166,7 +166,7 @@ export const DesignableArrayTable: React.FC<TableProps<any>> = observer(
               body: {
                 cell: (props: any) => {
                   return (
-                    <td {...props} {...getColumnId(props)}>
+                    <td {...props} {...createColumnId(props)}>
                       {props.children}
                     </td>
                   )
@@ -175,13 +175,13 @@ export const DesignableArrayTable: React.FC<TableProps<any>> = observer(
             }}
           >
             {columns.map((node, key) => {
-              const children = node.children.map((child, key) => {
-                return <TreeNodeWidget node={child} key={key} />
+              const children = node.children.map((child) => {
+                return <TreeNodeWidget node={child} key={child.id} />
               })
               return (
                 <Table.Column
                   title="Title"
-                  {...node.props}
+                  {...node.props['x-component-props']}
                   dataIndex={node.id}
                   className={`data-id:${node.id}`}
                   key={key}
@@ -199,13 +199,24 @@ export const DesignableArrayTable: React.FC<TableProps<any>> = observer(
               <Table.Column render={() => <Droppable />} />
             )}
           </Table>
-          {addition}
+          {additions.map((child) => {
+            return <TreeNodeWidget node={child} key={child.id} />
+          })}
         </ArrayBase>
         <LoadTemplate
           actions={[
             {
               title: 'addTableSortHandle',
               onClick: () => {
+                if (
+                  hasNodeByComponentPath(node, [
+                    'ArrayTable',
+                    '*',
+                    'ArrayTable.Column',
+                    'ArrayTable.SortHandle',
+                  ])
+                )
+                  return
                 const tableColumn = new TreeNode({
                   componentName: 'DesignableField',
                   props: {
@@ -222,12 +233,21 @@ export const DesignableArrayTable: React.FC<TableProps<any>> = observer(
                     },
                   ],
                 })
-                node.prependNode(tableColumn)
+                ensureObjectItemsNode(node).prependNode(tableColumn)
               },
             },
             {
-              title: 'addTableIndex',
+              title: 'addIndex',
               onClick: () => {
+                if (
+                  hasNodeByComponentPath(node, [
+                    'ArrayTable',
+                    '*',
+                    'ArrayTable.Column',
+                    'ArrayTable.Index',
+                  ])
+                )
+                  return
                 const tableColumn = new TreeNode({
                   componentName: 'DesignableField',
                   props: {
@@ -244,12 +264,34 @@ export const DesignableArrayTable: React.FC<TableProps<any>> = observer(
                     },
                   ],
                 })
-                node.prependNode(tableColumn)
+                const sortNode = findNodeByComponentPath(node, [
+                  'ArrayTable',
+                  '*',
+                  'ArrayTable.Column',
+                  'ArrayTable.SortHandle',
+                ])
+                if (sortNode) {
+                  sortNode.parent.insertAfter(tableColumn)
+                } else {
+                  ensureObjectItemsNode(node).prependNode(tableColumn)
+                }
               },
             },
             {
               title: 'addTableColumn',
               onClick: () => {
+                const operationNpde = findNodeByComponentPath(node, [
+                  'ArrayTable',
+                  '*',
+                  'ArrayTable.Column',
+                  (name) => {
+                    return (
+                      name === 'ArrayTable.Remove' ||
+                      name === 'ArrayTable.MoveDown' ||
+                      name === 'ArrayTable.MoveUp'
+                    )
+                  },
+                ])
                 const tableColumn = new TreeNode({
                   componentName: 'DesignableField',
                   props: {
@@ -257,51 +299,76 @@ export const DesignableArrayTable: React.FC<TableProps<any>> = observer(
                     'x-component': 'ArrayTable.Column',
                   },
                 })
-                node.appendNode(tableColumn)
+                if (operationNpde) {
+                  operationNpde.parent.insertBefore(tableColumn)
+                } else {
+                  ensureObjectItemsNode(node).appendNode(tableColumn)
+                }
               },
             },
             {
               title: 'addOperation',
               onClick: () => {
-                const additionNode = new TreeNode({
-                  componentName: 'DesignableField',
-                  props: {
-                    type: 'void',
-                    title: 'Addition',
-                    'x-component': 'ArrayTable.Addition',
+                const oldOperationNode = findNodeByComponentPath(node, [
+                  'ArrayTable',
+                  '*',
+                  'ArrayTable.Column',
+                  (name) => {
+                    return (
+                      name === 'ArrayTable.Remove' ||
+                      name === 'ArrayTable.MoveDown' ||
+                      name === 'ArrayTable.MoveUp'
+                    )
                   },
-                })
-                const operationNode = new TreeNode({
-                  componentName: 'DesignableField',
-                  props: {
-                    type: 'void',
-                    'x-component': 'ArrayTable.Column',
-                  },
-                  children: [
-                    {
-                      componentName: 'DesignableField',
-                      props: {
-                        type: 'void',
-                        'x-component': 'ArrayTable.Remove',
-                      },
+                ])
+                const oldAdditionNode = findNodeByComponentPath(node, [
+                  'ArrayTable',
+                  'ArrayTable.Addition',
+                ])
+                if (!oldOperationNode) {
+                  const operationNode = new TreeNode({
+                    componentName: 'DesignableField',
+                    props: {
+                      type: 'void',
+                      'x-component': 'ArrayTable.Column',
                     },
-                    {
-                      componentName: 'DesignableField',
-                      props: {
-                        type: 'void',
-                        'x-component': 'ArrayTable.MoveDown',
+                    children: [
+                      {
+                        componentName: 'DesignableField',
+                        props: {
+                          type: 'void',
+                          'x-component': 'ArrayTable.Remove',
+                        },
                       },
-                    },
-                    {
-                      componentName: 'DesignableField',
-                      props: {
-                        type: 'void',
-                        'x-component': 'ArrayTable.MoveUp',
+                      {
+                        componentName: 'DesignableField',
+                        props: {
+                          type: 'void',
+                          'x-component': 'ArrayTable.MoveDown',
+                        },
                       },
+                      {
+                        componentName: 'DesignableField',
+                        props: {
+                          type: 'void',
+                          'x-component': 'ArrayTable.MoveUp',
+                        },
+                      },
+                    ],
+                  })
+                  ensureObjectItemsNode(node).appendNode(operationNode)
+                }
+                if (!oldAdditionNode) {
+                  const additionNode = new TreeNode({
+                    componentName: 'DesignableField',
+                    props: {
+                      type: 'void',
+                      title: 'Addition',
+                      'x-component': 'ArrayTable.Addition',
                     },
-                  ],
-                })
-                node.appendNode(additionNode, operationNode)
+                  })
+                  ensureObjectItemsNode(node).insertAfter(additionNode)
+                }
               },
             },
           ]}
