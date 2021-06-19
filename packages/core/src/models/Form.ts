@@ -43,14 +43,14 @@ import {
   IFormMergeStrategy,
 } from '../types'
 import {
-  isVoidField,
-  runEffects,
   modelStateGetter,
   modelStateSetter,
   createFieldStateSetter,
   createFieldStateGetter,
   applyValuesPatch,
-} from '../shared'
+} from '../shared/internals'
+import { isVoidField } from '../shared/checkers'
+import { runEffects } from '../shared/effectbox'
 import { ArrayField } from './ArrayField'
 import { ObjectField } from './ObjectField'
 import { VoidField } from './VoidField'
@@ -602,12 +602,13 @@ export class Form<ValueType extends object = any> {
   }
 
   onUnmount = () => {
-    this.disposers.forEach((dispose) => dispose())
+    this.notify(LifeCycleTypes.ON_FORM_UNMOUNT)
     this.query('*').forEach((field) => field.dispose())
+    this.disposers.forEach((dispose) => dispose())
     this.unmounted = true
     this.fields = {}
     this.indexes.clear()
-    this.notify(LifeCycleTypes.ON_FORM_UNMOUNT)
+    this.heart.clear()
     if (globalThisPolyfill[DEV_TOOLS_HOOK] && !this.props.designable) {
       globalThisPolyfill[DEV_TOOLS_HOOK].unmount(this.id)
     }
