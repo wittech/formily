@@ -20,22 +20,6 @@ const parseCollpase = (parent: TreeNode) => {
   return tabs
 }
 
-const getCorrectActiveKey = (
-  activeKey: string[] | string,
-  tabs: TreeNode[]
-) => {
-  if (tabs.length === 0 || activeKey?.length === 0) return []
-  if (
-    tabs.some((node) =>
-      Array.isArray(activeKey)
-        ? activeKey.includes(node.id)
-        : node.id === activeKey
-    )
-  )
-    return activeKey
-  return tabs[tabs.length - 1].id
-}
-
 export const DesignableFormCollapse: React.FC<CollapseProps> & {
   CollapsePanel?: React.FC<CollapsePanelProps>
 } = observer((props) => {
@@ -48,6 +32,9 @@ export const DesignableFormCollapse: React.FC<CollapseProps> & {
       props: {
         type: 'void',
         'x-component': 'FormCollapse.CollapsePanel',
+        'x-component-props': {
+          header: `Unnamed Title`,
+        },
       },
       children: source,
     })
@@ -55,6 +42,26 @@ export const DesignableFormCollapse: React.FC<CollapseProps> & {
     setActiveKey(toArr(activeKey).concat(panelNode.id))
     return [panelNode]
   })
+  const getCorrectActiveKey = (
+    activeKey: string[] | string,
+    tabs: TreeNode[]
+  ) => {
+    if (!tabs.length || !activeKey?.length) {
+      if (props.accordion) {
+        return tabs[0]?.id
+      }
+      return tabs.map((item) => item.id)
+    }
+    if (
+      tabs.some((node) =>
+        Array.isArray(activeKey)
+          ? activeKey.includes(node.id)
+          : node.id === activeKey
+      )
+    )
+      return activeKey
+    return tabs[tabs.length - 1].id
+  }
   const panels = parseCollpase(node)
   const renderCollapse = () => {
     if (!node.children?.length) return <Droppable {...props} />
@@ -72,7 +79,7 @@ export const DesignableFormCollapse: React.FC<CollapseProps> & {
             <Collapse.Panel
               {...props}
               style={{ ...props.style }}
-              header={props.header || `Unnamed Title`}
+              header={props.header}
               key={panel.id}
             >
               {React.createElement(
@@ -105,6 +112,9 @@ export const DesignableFormCollapse: React.FC<CollapseProps> & {
                 props: {
                   type: 'void',
                   'x-component': 'FormCollapse.CollapsePanel',
+                  'x-component-props': {
+                    header: `Unnamed Title`,
+                  },
                 },
               })
               node.appendNode(tabPane)

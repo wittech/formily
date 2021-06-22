@@ -22,7 +22,7 @@ import * as defaultSchemas from '../../schemas'
 
 Schema.silent()
 
-export const createDesignableField = (options: IDesignableFieldProps = {}) => {
+export const createDesignableField = (options: IDesignableFieldProps) => {
   const realOptions = createOptions(options)
 
   const tabs = {}
@@ -103,7 +103,7 @@ export const createDesignableField = (options: IDesignableFieldProps = {}) => {
         },
         'x-display': {
           type: 'string',
-          enum: ['visible', 'hidden', 'none'],
+          enum: ['visible', 'hidden', 'none', ''],
           'x-decorator': 'FormItem',
           'x-component': 'Select',
           'x-component-props': {
@@ -113,7 +113,7 @@ export const createDesignableField = (options: IDesignableFieldProps = {}) => {
         },
         'x-pattern': {
           type: 'string',
-          enum: ['editable', 'disabled', 'readOnly', 'readPretty'],
+          enum: ['editable', 'disabled', 'readOnly', 'readPretty', ''],
           'x-decorator': 'FormItem',
           'x-component': 'Select',
           'x-component-props': {
@@ -176,7 +176,6 @@ export const createDesignableField = (options: IDesignableFieldProps = {}) => {
           'x-index': 5,
         },
         enum: {
-          type: 'array',
           'x-decorator': 'FormItem',
           //  'x-component': 'DataSourceSetter',
           'x-index': 6,
@@ -215,8 +214,10 @@ export const createDesignableField = (options: IDesignableFieldProps = {}) => {
     return true
   }
 
+  if (!realOptions.registryName) throw new Error('Can not found registryName')
+
   GlobalRegistry.registerDesignerProps({
-    [realOptions.name]: (node) => {
+    [realOptions.registryName]: (node) => {
       const componentName = node.props?.['x-component']
       const message = GlobalRegistry.getDesignerMessage(
         `components.${componentName}`

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useRef, useLayoutEffect } from 'react'
 import cls from 'classnames'
 import { usePrefixCls, pickDataProps } from '../__builtins__'
 import { isVoidField } from '@formily/core'
@@ -55,27 +55,55 @@ const useFormItemLayout = (props: IFormItemProps) => {
   const layout = useFormLayout()
   return {
     ...props,
-    layout: props.layout ?? layout.layout ?? 'horizontal',
-    colon: props.colon ?? layout.colon,
+    layout: props.layout || layout.layout || 'horizontal',
+    colon: props.colon || layout.colon,
     labelAlign:
       layout.layout === 'vertical'
-        ? props.labelAlign ?? layout.labelAlign ?? 'left'
-        : props.labelAlign ?? layout.labelAlign ?? 'right',
-    labelWrap: props.labelWrap ?? layout.labelWrap,
-    labelWidth: props.labelWidth ?? layout.labelWidth,
-    wrapperWidth: props.wrapperWidth ?? layout.wrapperWidth,
-    labelCol: props.labelCol ?? layout.labelCol,
-    wrapperCol: props.wrapperCol ?? layout.wrapperCol,
-    wrapperAlign: props.wrapperAlign ?? layout.wrapperAlign,
-    wrapperWrap: props.wrapperWrap ?? layout.wrapperWrap,
-    fullness: props.fullness ?? layout.fullness,
-    size: props.size ?? layout.size,
-    inset: props.inset ?? layout.inset,
+        ? props.labelAlign || layout.labelAlign || 'left'
+        : props.labelAlign || layout.labelAlign || 'right',
+    labelWrap: props.labelWrap || layout.labelWrap,
+    labelWidth: props.labelWidth || layout.labelWidth,
+    wrapperWidth: props.wrapperWidth || layout.wrapperWidth,
+    labelCol: props.labelCol || layout.labelCol,
+    wrapperCol: props.wrapperCol || layout.wrapperCol,
+    wrapperAlign: props.wrapperAlign || layout.wrapperAlign,
+    wrapperWrap: props.wrapperWrap || layout.wrapperWrap,
+    fullness: props.fullness || layout.fullness,
+    size: props.size || layout.size,
+    inset: props.inset || layout.inset,
     asterisk: props.asterisk,
-    bordered: props.bordered ?? layout.bordered,
+    bordered: props.bordered || layout.bordered,
     feedbackIcon: props.feedbackIcon,
-    feedbackLayout: props.feedbackLayout ?? layout.feedbackLayout ?? 'loose',
-    tooltipLayout: props.tooltipLayout ?? layout.tooltipLayout ?? 'icon',
+    feedbackLayout: props.feedbackLayout || layout.feedbackLayout || 'loose',
+    tooltipLayout: props.tooltipLayout || layout.tooltipLayout || 'icon',
+  }
+}
+
+function useOverflow<
+  Container extends HTMLElement,
+  Content extends HTMLElement
+>() {
+  const [overflow, setOverflow] = useState(false)
+  const containerRef = useRef<Container>()
+  const contentRef = useRef<Content>()
+
+  useLayoutEffect(() => {
+    if (containerRef.current && contentRef.current) {
+      if (
+        contentRef.current.getBoundingClientRect().width >
+        containerRef.current.getBoundingClientRect().width
+      ) {
+        if (!overflow) setOverflow(true)
+      } else {
+        if (overflow) setOverflow(false)
+      }
+    }
+  }, [])
+
+  return {
+    overflow,
+    containerRef,
+    contentRef,
   }
 }
 
@@ -90,6 +118,8 @@ export const BaseItem: React.FC<IFormItemProps> = (props) => {
   const [active, setActice] = useState(false)
   const gridSpan = useGridSpan(props.gridSpan)
   const formLayout = useFormItemLayout(others)
+  const { containerRef, contentRef, overflow } =
+    useOverflow<HTMLDivElement, HTMLLabelElement>()
   const {
     label,
     style,
@@ -124,18 +154,20 @@ export const BaseItem: React.FC<IFormItemProps> = (props) => {
   let enableCol = false
   if (labelWidth || wrapperWidth) {
     if (labelWidth) {
-      labelStyle.width = labelWidth
-      labelStyle.maxWidth = labelWidth
+      labelStyle.width = labelWidth === 'auto' ? undefined : labelWidth
+      labelStyle.maxWidth = labelWidth === 'auto' ? undefined : labelWidth
     }
     if (wrapperWidth) {
-      wrapperStyle.width = wrapperWidth
-      wrapperStyle.maxWidth = wrapperWidth
+      wrapperStyle.width = wrapperWidth === 'auto' ? undefined : wrapperWidth
+      wrapperStyle.maxWidth = wrapperWidth === 'auto' ? undefined : wrapperWidth
     }
     // 栅格模式
-  } else if (labelCol || wrapperCol) {
-    enableCol = true
   }
-
+  if (labelCol || wrapperCol) {
+    if (!labelStyle.width && !wrapperStyle.width) {
+      enableCol = true
+    }
+  }
   const prefixCls = usePrefixCls('formily-item', props)
   const prefix = usePrefixCls()
   const formatChildren =
@@ -160,17 +192,73 @@ export const BaseItem: React.FC<IFormItemProps> = (props) => {
       children
     )
 
-  const labelChildren = (
-    <div className={cls(`${prefixCls}-label-content`)}>
-      {asterisk && <span className={cls(`${prefixCls}-asterisk`)}>{'*'}</span>}
-      <label>{label}</label>
-    </div>
-  )
-
   const gridStyles: React.CSSProperties = {}
 
   if (gridSpan) {
     gridStyles.gridColumnStart = `span ${gridSpan}`
+  }
+
+  const getOverflowTooltip = () => {
+    if (overflow) {
+      return (
+        <div>
+          <div>{label}</div>
+          <div>{tooltip}</div>
+        </div>
+      )
+    }
+    return tooltip
+  }
+
+  const renderLabelText = () => {
+    const labelChildren = (
+      <div className={cls(`${prefixCls}-label-content`)} ref={containerRef}>
+        {asterisk && (
+          <span className={cls(`${prefixCls}-asterisk`)}>{'*'}</span>
+        )}
+        <label ref={contentRef}>{label}</label>
+      </div>
+    )
+
+    if ((tooltipLayout === 'text' && tooltip) || overflow) {
+      return (
+        <Balloon.Tooltip align="t" trigger={labelChildren}>
+          {getOverflowTooltip()}
+        </Balloon.Tooltip>
+      )
+    }
+    return labelChildren
+  }
+
+  const renderTooltipIcon = () => {
+    if (tooltip && tooltipLayout === 'icon' && !overflow) {
+      return (
+        <span className={cls(`${prefixCls}-label-tooltip-icon`)}>
+          <Balloon.Tooltip align="t" trigger={<QuestionCircleOutlined />}>
+            {tooltip}
+          </Balloon.Tooltip>
+        </span>
+      )
+    }
+  }
+
+  const renderLabel = () => {
+    if (!label || label === ' ') return null
+    return (
+      <div
+        className={cls({
+          [`${prefixCls}-label`]: true,
+          [`${prefixCls}-label-tooltip`]:
+            (tooltip && tooltipLayout === 'text') || overflow,
+          [`${prefixCls}-item-col-${labelCol}`]: enableCol && !!labelCol,
+        })}
+        style={labelStyle}
+      >
+        {renderLabelText()}
+        {renderTooltipIcon()}
+        <span className={cls(`${prefixCls}-colon`)}>{colon ? ':' : ''}</span>
+      </div>
+    )
   }
 
   return (
@@ -211,37 +299,7 @@ export const BaseItem: React.FC<IFormItemProps> = (props) => {
         }
       }}
     >
-      {label && (
-        <div
-          className={cls({
-            [`${prefixCls}-label`]: true,
-            [`${prefixCls}-label-tooltip`]: tooltip && tooltipLayout === 'text',
-            [`${prefixCls}-item-col-${labelCol}`]: enableCol && !!labelCol,
-          })}
-          style={labelStyle}
-        >
-          {tooltipLayout === 'text' ? (
-            <Balloon.Tooltip align="t" trigger={labelChildren}>
-              {tooltip}
-            </Balloon.Tooltip>
-          ) : (
-            labelChildren
-          )}
-          {tooltip && tooltipLayout === 'icon' && (
-            <span className={cls(`${prefixCls}-label-tooltip-icon`)}>
-              <Balloon.Tooltip align="t" trigger={<QuestionCircleOutlined />}>
-                {tooltip}
-              </Balloon.Tooltip>
-            </span>
-          )}
-          {colon && (
-            <span className={cls(`${prefixCls}-colon`)}>
-              {colon ? ':' : ''}
-            </span>
-          )}
-        </div>
-      )}
-
+      {renderLabel()}
       <div
         className={cls({
           [`${prefixCls}-control`]: true,

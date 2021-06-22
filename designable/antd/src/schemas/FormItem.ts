@@ -56,7 +56,7 @@ export const FormItem: ISchema = {
     },
     feedbackLayout: {
       type: 'string',
-      enum: ['loose', 'terse', 'popover', 'none'],
+      enum: ['loose', 'terse', 'popover', 'none', ''],
       'x-decorator': 'FormItem',
       'x-component': 'Select',
       'x-component-props': {
@@ -65,53 +65,48 @@ export const FormItem: ISchema = {
     },
     size: {
       type: 'string',
-      enum: ['large', 'small', 'default'],
+      enum: ['large', 'small', 'default', ''],
       'x-decorator': 'FormItem',
-      'x-component': 'Radio.Group',
+      'x-component': 'Select',
       'x-component-props': {
         defaultValue: 'default',
-        optionType: 'button',
       },
     },
     layout: {
       type: 'string',
-      enum: ['vertical', 'horizontal', 'inline'],
+      enum: ['vertical', 'horizontal', 'inline', ''],
       'x-decorator': 'FormItem',
-      'x-component': 'Radio.Group',
+      'x-component': 'Select',
       'x-component-props': {
         defaultValue: 'horizontal',
-        optionType: 'button',
       },
     },
 
     tooltipLayout: {
       type: 'string',
-      enum: ['icon', 'text'],
+      enum: ['icon', 'text', ''],
       'x-decorator': 'FormItem',
-      'x-component': 'Radio.Group',
+      'x-component': 'Select',
       'x-component-props': {
         defaultValue: 'icon',
-        optionType: 'button',
       },
     },
     labelAlign: {
       type: 'string',
-      enum: ['left', 'right'],
+      enum: ['left', 'right', ''],
       'x-decorator': 'FormItem',
-      'x-component': 'Radio.Group',
+      'x-component': 'Select',
       'x-component-props': {
         defaultValue: 'right',
-        optionType: 'button',
       },
     },
     wrapperAlign: {
       type: 'string',
-      enum: ['left', 'right'],
+      enum: ['left', 'right', ''],
       'x-decorator': 'FormItem',
-      'x-component': 'Radio.Group',
+      'x-component': 'Select',
       'x-component-props': {
         defaultValue: 'left',
-        optionType: 'button',
       },
     },
     labelWrap: {

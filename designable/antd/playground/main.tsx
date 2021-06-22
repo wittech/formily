@@ -1,11 +1,11 @@
-import React, { useMemo, useState } from 'react'
+import React, { useMemo } from 'react'
 import ReactDOM from 'react-dom'
 import {
   Designer,
   IconWidget,
-  ToolbarWidget,
+  DesignerToolsWidget,
+  ViewToolsWidget,
   Workspace,
-  Viewport,
   OutlineTreeWidget,
   DragSourceWidget,
   MainPanel,
@@ -13,60 +13,63 @@ import {
   WorkspacePanel,
   ToolbarPanel,
   ViewportPanel,
+  ViewPanel,
   SettingsPanel,
   ComponentTreeWidget,
 } from '@designable/react'
 import { SettingsForm } from '@designable/react-settings-form'
-import { createDesigner } from '@designable/core'
-import { Space, Button } from 'antd'
-import { GithubOutlined } from '@ant-design/icons'
+import { createDesigner, GlobalRegistry } from '@designable/core'
 import { createDesignableField, createDesignableForm } from '../src'
+import {
+  LogoWidget,
+  ActionsWidget,
+  PreviewWidget,
+  SchemaEditorWidget,
+} from './widgets'
 import 'antd/dist/antd.less'
 
-const DesignableForm = createDesignableForm({
-  name: 'Root',
+GlobalRegistry.registerDesignerLocales({
+  'zh-CN': {
+    sources: {
+      Inputs: '输入控件',
+      Layouts: '布局组件',
+      Arrays: '自增组件',
+    },
+  },
+  'en-US': {
+    sources: {
+      Inputs: 'Inputs',
+      Layouts: 'Layouts',
+      Arrays: 'Arrays',
+    },
+  },
 })
 
-const DesignableField = createDesignableField()
+const Root = createDesignableForm({
+  registryName: 'Root',
+})
 
-const Logo: React.FC = () => (
-  <div style={{ display: 'flex', alignItems: 'center', fontSize: 14 }}>
-    <img
-      src="//img.alicdn.com/imgextra/i2/O1CN01fLfasn23ZFgoqt7Id_!!6000000007269-55-tps-1141-150.svg"
-      style={{ margin: '0 8px', height: 24, width: 'auto' }}
-    />
-  </div>
-)
-
-const Actions = () => (
-  <Space style={{ marginRight: 10 }}>
-    <Button href="https://github.com/alibaba/designable" target="_blank">
-      <GithubOutlined />
-      Github
-    </Button>
-    <Button>保存</Button>
-    <Button type="primary">发布</Button>
-  </Space>
-)
+const DesignableField = createDesignableField({
+  registryName: 'DesignableField',
+})
 
 const App = () => {
-  const [view, setView] = useState('design')
   const engine = useMemo(() => createDesigner(), [])
 
   return (
     <Designer engine={engine}>
-      <MainPanel logo={<Logo />} actions={<Actions />}>
+      <MainPanel logo={<LogoWidget />} actions={<ActionsWidget />}>
         <CompositePanel>
           <CompositePanel.Item
-            title="组件"
+            title="panels.Component"
             icon={<IconWidget infer="Component" />}
           >
-            <DragSourceWidget title="输入组件" name="inputs" />
-            <DragSourceWidget title="布局组件" name="layouts" />
-            <DragSourceWidget title="自增列表" name="arrays" />
+            <DragSourceWidget title="sources.Inputs" name="inputs" />
+            <DragSourceWidget title="sources.Layouts" name="layouts" />
+            <DragSourceWidget title="sources.Arrays" name="arrays" />
           </CompositePanel.Item>
           <CompositePanel.Item
-            title="大纲树"
+            title="panels.OutlinedTree"
             icon={<IconWidget infer="Outline" />}
           >
             <OutlineTreeWidget />
@@ -75,53 +78,32 @@ const App = () => {
         <Workspace id="form">
           <WorkspacePanel>
             <ToolbarPanel>
-              <ToolbarWidget />
-              <Button.Group>
-                <Button
-                  disabled={view === 'design'}
-                  onClick={() => {
-                    setView('design')
-                  }}
-                  size="small"
-                >
-                  <IconWidget infer="Design" />
-                </Button>
-                <Button
-                  disabled={view === 'json'}
-                  onClick={() => {
-                    setView('json')
-                  }}
-                  size="small"
-                >
-                  <IconWidget infer="JSON" />
-                </Button>
-                <Button
-                  disabled={view === 'code'}
-                  onClick={() => {
-                    setView('code')
-                  }}
-                  size="small"
-                >
-                  <IconWidget infer="Code" />
-                </Button>
-              </Button.Group>
+              <DesignerToolsWidget />
+              <ViewToolsWidget />
             </ToolbarPanel>
             <ViewportPanel>
-              {view === 'json' && <div>JSON Schema</div>}
-              {view === 'design' && (
-                <Viewport>
+              <ViewPanel type="DESIGNABLE">
+                {() => (
                   <ComponentTreeWidget
                     components={{
-                      Root: DesignableForm,
+                      Root,
                       DesignableField,
                     }}
                   />
-                </Viewport>
-              )}
+                )}
+              </ViewPanel>
+              <ViewPanel type="JSONTREE">
+                {(tree, onChange) => (
+                  <SchemaEditorWidget tree={tree} onChange={onChange} />
+                )}
+              </ViewPanel>
+              <ViewPanel type="PREVIEW">
+                {(tree) => <PreviewWidget tree={tree} />}
+              </ViewPanel>
             </ViewportPanel>
           </WorkspacePanel>
         </Workspace>
-        <SettingsPanel title="属性配置">
+        <SettingsPanel title="panels.PropertySettings">
           <SettingsForm uploadAction="https://www.mocky.io/v2/5cc8019d300000980a055e76" />
         </SettingsPanel>
       </MainPanel>

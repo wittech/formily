@@ -1,6 +1,6 @@
 {
   "name": "@formily/designable-antd",
-  "version": "2.0.0-beta.68",
+  "version": "2.0.0-beta.69",
   "private": true,
   "license": "MIT",
   "main": "lib",
@@ -30,13 +30,15 @@
     "start": "webpack-dev-server --config playground/webpack.dev.ts"
   },
   "devDependencies": {
-    "@designable/react-settings-form": "^0.2.0",
+    "@designable/react-settings-form": "^0.3.14",
     "autoprefixer": "^9.0",
     "file-loader": "^5.0.2",
     "fs-extra": "^8.1.0",
     "html-webpack-plugin": "^3.2.0",
     "mini-css-extract-plugin": "^1.6.0",
+    "monaco-editor-webpack-plugin": "^4.0.0",
     "raw-loader": "^4.0.0",
+    "react-monaco-editor": "^0.43.0",
     "style-loader": "^1.1.3",
     "ts-loader": "^7.0.4",
     "typescript": "4.1.5",
@@ -54,12 +56,13 @@
     "react-is": ">=16.8.0 || >=17.0.0"
   },
   "dependencies": {
-    "@designable/core": "^0.2.0",
-    "@designable/react": "^0.2.0",
-    "@formily/antd": "2.0.0-beta.68",
-    "@formily/core": "2.0.0-beta.68",
-    "@formily/react": "2.0.0-beta.68",
-    "@formily/shared": "2.0.0-beta.68"
+    "@designable/core": "^0.3.14",
+    "@designable/formily": "^0.3.14",
+    "@designable/react": "^0.3.14",
+    "@formily/antd": "2.0.0-beta.69",
+    "@formily/core": "2.0.0-beta.69",
+    "@formily/react": "2.0.0-beta.69",
+    "@formily/shared": "2.0.0-beta.69"
   },
   "publishConfig": {
     "access": "public"

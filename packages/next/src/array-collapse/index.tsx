@@ -117,11 +117,14 @@ export const ArrayCollapse: ComposedArrayCollapse = observer(
             const items = Array.isArray(schema.items)
               ? schema.items[index] || schema.items[0]
               : schema.items
-
+            const panelProps = field
+              .query(`${field.address}.${index}`)
+              .get('componentProps')
             const props: PanelProps = items['x-component-props']
-
             const title = () => {
-              const title = `${props?.title || field.title}`
+              const title = `${
+                panelProps?.title || props?.title || field.title
+              }`
               const path = field.address.concat(index)
               const errors = field.form.queryFeedbacks({
                 type: 'error',
@@ -178,7 +181,12 @@ export const ArrayCollapse: ComposedArrayCollapse = observer(
               />
             )
             return (
-              <Collapse.Panel {...props} key={index} title={title()}>
+              <Collapse.Panel
+                {...props}
+                {...panelProps}
+                key={index}
+                title={title()}
+              >
                 <ArrayBase.Item index={index} key={index}>
                   {content}
                 </ArrayBase.Item>

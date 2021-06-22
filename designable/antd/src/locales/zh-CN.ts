@@ -16,8 +16,8 @@ const FormLayoutLocale = {
   labelCol: '标签网格宽度',
   wrapperCol: '组件网格宽度',
   colon: '是否有冒号',
-  labelAlign: { title: '标签对齐', dataSource: ['左对齐', '右对齐'] },
-  wrapperAlign: { title: '组件对齐', dataSource: ['左对齐', '右对齐'] },
+  labelAlign: { title: '标签对齐', dataSource: ['左对齐', '右对齐', '继承'] },
+  wrapperAlign: { title: '组件对齐', dataSource: ['左对齐', '右对齐', '继承'] },
   labelWrap: '标签换行',
   wrapperWrap: '组件换行',
   labelWidth: '标签宽度',
@@ -26,13 +26,13 @@ const FormLayoutLocale = {
   inset: '内联布局',
   shallow: '是否浅传递',
   bordered: '是否有边框',
-  size: { title: '尺寸', dataSource: ['大', '小', '默认'] },
-  layout: { title: '布局', dataSource: ['垂直', '水平', '内联'] },
+  size: { title: '尺寸', dataSource: ['大', '小', '默认', '继承'] },
+  layout: { title: '布局', dataSource: ['垂直', '水平', '内联', '继承'] },
   feedbackLayout: {
     title: '反馈布局',
-    dataSource: ['宽松', '紧凑', '弹层', '无'],
+    dataSource: ['宽松', '紧凑', '弹层', '无', '继承'],
   },
-  tooltipLayout: { title: '提示布局', dataSource: ['图标', '文本'] },
+  tooltipLayout: { title: '提示布局', dataSource: ['图标', '文本', '继承'] },
 }
 
 const InputLocale = {
@@ -69,14 +69,11 @@ const SelectLocale = {
     tooltip: '仅在多选或者标签模式下支持',
   },
   autoFocus: '自动获取焦点',
-  defaultActiveFirstOption: {
-    title: '默认高亮',
-    tooltip: '默认高亮第一个选项',
-  },
+  defaultActiveFirstOption: '默认高亮第一个选项',
   dropdownMatchSelectWidth: {
     title: '下拉菜单和选择器同宽',
     tooltip:
-      '下拉菜单和选择器同宽。默认将设置 min-width，当值小于选择框宽度时会被忽略。false 时会关闭虚拟滚动',
+      '默认将设置 min-width，当值小于选择框宽度时会被忽略。false 时会关闭虚拟滚动',
   },
   defaultOpen: '默认展开',
   filterOption: '选项筛选器',
@@ -145,7 +142,7 @@ const DatePickerLocale = {
   format: '格式',
   picker: {
     title: '选择器类型',
-    dataSource: ['时间', '日期', '月份', '年', '财年'],
+    dataSource: ['时间', '日期', '月份', '年', '季度'],
   },
   showNow: '显示此刻',
   showTime: '时间选择',
@@ -346,11 +343,11 @@ const FieldLocale = {
   'x-display': {
     title: '展示状态',
     tooltip: '半隐藏只会隐藏UI，全隐藏会删除数据',
-    dataSource: ['显示', '半隐藏', '全隐藏'],
+    dataSource: ['显示', '半隐藏', '全隐藏', '继承'],
   },
   'x-pattern': {
     title: 'UI形态',
-    dataSource: ['可编辑', '禁用', '只读', '阅读'],
+    dataSource: ['可编辑', '禁用', '只读', '阅读', '继承'],
   },
   'x-validator': '校验规则',
   'x-reactions': '响应器规则',
