@@ -19,18 +19,21 @@ export class Tracker {
   }
 
   track: Reaction = (tracker: Reaction) => {
-    if (ReactionStack.indexOf(this.track) === -1) {
+    if (!isFn(tracker)) return this.results
+    const reactionIndex = ReactionStack.indexOf(this.track)
+    if (reactionIndex === -1) {
       releaseBindingReactions(this.track)
       try {
         ReactionStack.push(this.track)
         batchStart()
-        if (isFn(tracker)) {
-          this.results = tracker()
-        }
+        this.results = tracker()
       } finally {
         batchEnd()
         ReactionStack.pop()
       }
+    } else {
+      ReactionStack.splice(reactionIndex, 1)
+      this.track()
     }
     return this.results
   }

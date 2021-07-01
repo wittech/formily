@@ -54,13 +54,17 @@ export const computed: IComputed = createAnnotation(
       store.value = getter?.call?.(context)
     }
     function reaction() {
-      if (ReactionStack.indexOf(reaction) === -1) {
+      const reactionIndex = ReactionStack.indexOf(reaction)
+      if (reactionIndex === -1) {
         try {
           ReactionStack.push(reaction)
           compute()
         } finally {
           ReactionStack.pop()
         }
+      } else {
+        ReactionStack.splice(reactionIndex, 1)
+        reaction()
       }
     }
     reaction._name = 'ComputedReaction'
