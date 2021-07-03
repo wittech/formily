@@ -1113,3 +1113,113 @@ test('reaction in reaction', () => {
   expect(field2.value).toEqual(undefined)
   expect(field2.display).toEqual('none')
 })
+
+test('nested fields hidden and validate', async () => {
+  const form = attach(createForm())
+  const parent = attach(
+    form.createVoidField({
+      name: 'parent',
+    })
+  )
+  attach(
+    form.createField({
+      name: 'aa',
+      basePath: 'parent',
+      required: true,
+    })
+  )
+  attach(
+    form.createField({
+      name: 'bb',
+      basePath: 'parent',
+      required: true,
+    })
+  )
+  try {
+    await form.validate()
+  } catch {}
+  expect(form.invalid).toBeTruthy()
+  parent.display = 'hidden'
+  await form.validate()
+  expect(form.invalid).toBeFalsy()
+})
+
+test('deep nested fields hidden and validate', async () => {
+  const form = attach(createForm())
+  const parent1 = attach(
+    form.createVoidField({
+      name: 'parent1',
+    })
+  )
+  const parent2 = attach(
+    form.createVoidField({
+      name: 'parent2',
+      basePath: 'parent1',
+    })
+  )
+  const aa = attach(
+    form.createField({
+      name: 'aa',
+      basePath: 'parent1.parent2',
+      required: true,
+    })
+  )
+  const bb = attach(
+    form.createField({
+      name: 'bb',
+      basePath: 'parent1.parent2',
+      required: true,
+    })
+  )
+  try {
+    await form.validate()
+  } catch {}
+  expect(form.invalid).toBeTruthy()
+  parent2.display = 'visible'
+  parent1.display = 'hidden'
+  expect(parent2.display).toEqual('hidden')
+  expect(aa.display).toEqual('hidden')
+  expect(bb.display).toEqual('hidden')
+  await form.validate()
+  expect(form.invalid).toBeFalsy()
+})
+
+test('deep nested fields hidden and validate with middle hidden', async () => {
+  const form = attach(createForm())
+  const parent1 = attach(
+    form.createVoidField({
+      name: 'parent1',
+    })
+  )
+  const parent2 = attach(
+    form.createVoidField({
+      name: 'parent2',
+      basePath: 'parent1',
+    })
+  )
+  const aa = attach(
+    form.createField({
+      name: 'aa',
+      basePath: 'parent1.parent2',
+      required: true,
+    })
+  )
+  const bb = attach(
+    form.createField({
+      name: 'bb',
+      basePath: 'parent1.parent2',
+      required: true,
+    })
+  )
+  try {
+    await form.validate()
+  } catch {}
+  expect(form.invalid).toBeTruthy()
+  parent2.display = 'hidden'
+  parent1.display = 'none'
+  expect(parent2.display).toEqual('hidden')
+  expect(aa.display).toEqual('hidden')
+  expect(bb.display).toEqual('hidden')
+  await form.validate()
+  expect(form.invalid).toBeFalsy()
+})

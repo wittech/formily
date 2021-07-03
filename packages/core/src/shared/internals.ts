@@ -195,15 +195,19 @@ export const validateToFeedbacks = async (
     validateFirst: field.props.validateFirst || field.form.props.validateFirst,
     context: this,
   })
-  const shouldSkipValidate =
-    field.display !== 'visible' || field.pattern !== 'editable'
+  const takeSkipCondition = () => {
+    if (field.display !== 'visible') return true
+    if (field.pattern !== 'editable') return true
+    return false
+  }
+
   batch(() => {
     each(results, (messages, type) => {
       field.setFeedback({
         triggerType,
         type,
         code: pascalCase(`validate-${type}`),
-        messages: shouldSkipValidate ? [] : messages,
+        messages: takeSkipCondition() ? [] : messages,
       } as any)
     })
   })
@@ -595,4 +599,25 @@ export const applyValuesPatch = (
   }
   if (GlobalState.initializing) return
   patch(source, path)
+}
+
+export const triggerFormInitialValuesChange = (
+  form: Form,
+  change: Formily.Reactive.Types.DataChange
+) => {
+  if (change.path[0] === 'initialValues') {
+    if (change.type === 'add' || change.type === 'set') {
+      applyValuesPatch(form, change.path.slice(1), change.value)
+    }
+    form.notify(LifeCycleTypes.ON_FORM_INITIAL_VALUES_CHANGE)
+  }
+}
+
+export const triggerFormValuesChange = (
+  form: Form,
+  change: Formily.Reactive.Types.DataChange
+) => {
+  if (change.path[0] === 'values') {
+    form.notify(LifeCycleTypes.ON_FORM_VALUES_CHANGE)
+  }
 }
