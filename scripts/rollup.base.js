@@ -16,6 +16,7 @@ const presets = () => {
     '@alifd/next': 'Next',
     'mobx-react-lite': 'mobxReactLite',
     'react-dom': 'ReactDOM',
+    'element-ui': 'ElementUI',
     '@ant-design/icons': 'icons',
     '@vue/composition-api': 'VueCompositionAPI',
     '@formily/reactive-react': 'Formily.ReactiveReact',
@@ -27,6 +28,7 @@ const presets = () => {
     '@formily/core': 'Formily.Core',
     '@formily/json-schema': 'Formily.JSONSchema',
     '@formily/react': 'Formily.React',
+    '@formily/vue': 'Formily.Vue',
   }
   return [
     typescript({
