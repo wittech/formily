@@ -1,5 +1,61 @@
 # Changelog
 
+## v2.0.0-beta.77(2021-07-12)
+
+### :tada: Enhancements
+
+1. [feat(setters): add ReactionsSetter (#1768)](https://github.com/alibaba/formily/commit/1bdc89bc) :point_right: ( [Janry](https://github.com/Janry) )
+
+1. [feat(antd): transfer compat label/value](https://github.com/alibaba/formily/commit/2be3a10d) :point_right: ( [janrywang](https://github.com/janrywang) )
+
+1. [feat(designable): add data source setter (#1746)](https://github.com/alibaba/formily/commit/a6206e85) :point_right: ( [CoCoManYY](https://github.com/CoCoManYY) )
+
+1. [feat(element): add element support (#1734)](https://github.com/alibaba/formily/commit/43d1ef0b) :point_right: ( [Muyao](https://github.com/Muyao) )
+
+### :beetle: Bug Fixes
+
+1. [fix(element): fix vuepress doc not identify fetch (#1769)](https://github.com/alibaba/formily/commit/bc4348e3) :point_right: ( [Muyao](https://github.com/Muyao) )
+
+1. [fix(element): add rollup external to fix element package size (#1766)](https://github.com/alibaba/formily/commit/8104dbfb) :point_right: ( [Muyao](https://github.com/Muyao) )
+
+1. [fix(antd/next): fix tooltip style incorrect of formitem (#1749)](https://github.com/alibaba/formily/commit/4ad18845) :point_right: ( [liuwei](https://github.com/liuwei) )
+
+1. [fix(vue): fix x-content is not work with array type (#1754)](https://github.com/alibaba/formily/commit/66fd1bcd) :point_right: ( [Muyao](https://github.com/Muyao) )
+
+1. [fix(core): fix array value changed but not auto clean node (#1742)](https://github.com/alibaba/formily/commit/83b5f4bf) :point_right: ( [Janry](https://github.com/Janry) )
+
+1. [fix(vue): fix vue typing (#1730)](https://github.com/alibaba/formily/commit/b51a2198) :point_right: ( [Muyao](https://github.com/Muyao) )
+
+### :memo: Documents Changes
+
+1. [docs(site): add designer link](https://github.com/alibaba/formily/commit/dd611b9d) :point_right: ( [janrywang](https://github.com/janrywang) )
+
+1. [docs(react): improve ObjectField demo code (#1727)](https://github.com/alibaba/formily/commit/ccfba03a) :point_right: ( [砂糖梨子](https://github.com/砂糖梨子) )
+
+### :hammer_and_wrench: Update Workflow Scripts
+
+1. [build: fix build global may be failed (#1744)](https://github.com/alibaba/formily/commit/818aa132) :point_right: ( [liuwei](https://github.com/liuwei) )
+
+### :blush: Other Changes
+
+1. [chore(site): add formily element link](https://github.com/alibaba/formily/commit/4264eb5b) :point_right: ( [janrywang](https://github.com/janrywang) )
+
+1. [chore(designable): upgrade](https://github.com/alibaba/formily/commit/6d5c8071) :point_right: ( [janrywang](https://github.com/janrywang) )
+
+1. [chore(setters): update locales](https://github.com/alibaba/formily/commit/15065a7e) :point_right: ( [janrywang](https://github.com/janrywang) )
+
+1. [chore(setters): improve DataSourceSetter ui](https://github.com/alibaba/formily/commit/1c12f543) :point_right: ( [janrywang](https://github.com/janrywang) )
+
+1. [chore(designable-antd): improve locales (#1758)](https://github.com/alibaba/formily/commit/3b560c27) :point_right: ( [Janry](https://github.com/Janry) )
+
+1. [chore(project): update readme](https://github.com/alibaba/formily/commit/c4cddc6e) :point_right: ( [janrywang](https://github.com/janrywang) )
+
+## v2.0.0-beta.76(2021-07-05)
+
+### :beetle: Bug Fixes
+
+1. [fix(reactive): fix Tracker memo leak in StrictMode (#1715)](https://github.com/alibaba/formily/commit/e9f23c39) :point_right: ( [Janry](https://github.com/Janry) )
+
 ## v2.0.0-beta.75(2021-07-03)
 
 ### :blush: Other Changes
@@ -891,43 +947,3 @@
 1. [fix(antd/next-components): fix form step dynamic items (#926)](https://github.com/alibaba/formily/commit/9df3eee0) :point_right: ( [Janry](https://github.com/Janry) )
 
 1. [bugfix (#920)](https://github.com/alibaba/formily/commit/4f41b564) :point_right: ( [Janry](https://github.com/Janry) )
-
-## v1.2.2(2020-06-30)
-
-### :tada: Enhancements
-
-1. [feat(layout): support responsive gri layout for older browsers (#916)](https://github.com/alibaba/formily/commit/f87e70dc) :point_right: ( [quirkyvar](https://github.com/quirkyvar) )
-
-### :beetle: Bug Fixes
-
-1. [fix(core): fix value is overwritten by default (#917)](https://github.com/alibaba/formily/commit/f3ad1598) :point_right: ( [Janry](https://github.com/Janry) )
-
-## v1.2.0(2020-06-28)
-
-### :tada: Enhancements
-
-1. [feat: support antd v3 (#913)](https://github.com/alibaba/formily/commit/7b4cf527) :point_right: ( [quirkyvar](https://github.com/quirkyvar) )
-
-1. [feat: add ie compat mode of grid(ie) (#912)](https://github.com/alibaba/formily/commit/b7313976) :point_right: ( [quirkyvar](https://github.com/quirkyvar) )
-
-1. [feat(layout): add ts type desc of MegaLayout and fix array-inc doc (#905)](https://github.com/alibaba/formily/commit/f37a0934) :point_right: ( [quirkyvar](https://github.com/quirkyvar) )
-
-1. [feat(layout): add inset mode for mega layout (#900)](https://github.com/alibaba/formily/commit/6f173317) :point_right: ( [quirkyvar](https://github.com/quirkyvar) )
-
-1. [feat: update snapshot and layout test for nested grid (#894)](https://github.com/alibaba/formily/commit/72619eca) :point_right: ( [quirkyvar](https://github.com/quirkyvar) )
-
-### :beetle: Bug Fixes
-
-1. [fix(core): fix event trigger order (#908)](https://github.com/alibaba/formily/commit/ccac95bc) :point_right: ( [Janry](https://github.com/Janry) )
-
-1. [fix(core): sync form state (#906)](https://github.com/alibaba/formily/commit/de32802a) :point_right: ( [Janry](https://github.com/Janry) )
-
-1. [fix(react): fix ArrayTable index and FormSpy (#904)](https://github.com/alibaba/formily/commit/944891f7) :point_right: ( [Janry](https://github.com/Janry) )
-
-1. [fix(layout): inset mode comflict with labelAlign top (#903)](https://github.com/alibaba/formily/commit/9906a0ce) :point_right: ( [quirkyvar](https://github.com/quirkyvar) )
-
-1. [fix(core): fix value sync bug](https://github.com/alibaba/formily/commit/62c345c4) :point_right: ( [janrywang](https://github.com/janrywang) )
-
-1. [fix(core): fix types of errors/warnings in IFormState (#898)](https://github.com/alibaba/formily/commit/b6bb1daa) :point_right: ( [Xianming Zhong](https://github.com/Xianming Zhong) )
-
-1. [fix(core): fix array list mutators (#888)](https://github.com/alibaba/formily/commit/50f4e9e5) :point_right: ( [Janry](https://github.com/Janry) )

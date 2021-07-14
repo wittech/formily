@@ -159,7 +159,7 @@ export class Form<ValueType extends object = any> {
       setPattern: batch,
       setDisplay: batch,
       setState: batch,
-      deleteIntialValuesIn: batch,
+      deleteInitialValuesIn: batch,
       deleteValuesIn: batch,
       setSubmitting: batch,
       setValidating: batch,
@@ -451,7 +451,7 @@ export class Form<ValueType extends object = any> {
     })
   }
 
-  deleteIntialValuesIn = (pattern: FormPathPattern) => {
+  deleteInitialValuesIn = (pattern: FormPathPattern) => {
     untracked(() => {
       FormPath.deleteIn(this.initialValues, pattern)
     })
