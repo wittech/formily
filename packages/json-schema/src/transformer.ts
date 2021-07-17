@@ -1,5 +1,5 @@
 /* istanbul ignore file */
-import { untracked } from '@formily/reactive'
+import { untracked, autorun, observable } from '@formily/reactive'
 import {
   isBool,
   isArr,
@@ -394,15 +394,18 @@ const getReactions = (schema: ISchema, options: ISchemaFieldFactoryOptions) => {
 
   const queryDependency = (
     field: Formily.Core.Models.Field,
-    pattern: string
+    pattern: string,
+    property?: string
   ) => {
     const [target, path] = String(pattern).split(/\s*#\s*/)
-    return field.query(target).getIn(path || 'value')
+    return field.query(target).getIn(path || property || 'value')
   }
 
   const parseDependencies = (
     field: Formily.Core.Models.Field,
-    dependencies: Array<string | { name: string; source: string }> | object
+    dependencies:
+      | Array<string | { name?: string; source?: string; property?: string }>
+      | object
   ) => {
     if (isArr(dependencies)) {
       const results = []
@@ -411,7 +414,11 @@ const getReactions = (schema: ISchema, options: ISchemaFieldFactoryOptions) => {
           results.push(queryDependency(field, pattern))
         } else if (isPlainObj(pattern)) {
           if (pattern.name && pattern.source) {
-            results[pattern.name] = queryDependency(field, pattern.source)
+            results[pattern.name] = queryDependency(
+              field,
+              pattern.source,
+              pattern.property
+            )
           }
         }
       })
@@ -441,6 +448,11 @@ const getReactions = (schema: ISchema, options: ISchemaFieldFactoryOptions) => {
         const $form = field.form
         const $deps = parseDependencies(field, reaction.dependencies)
         const $dependencies = $deps
+        const $observable = (target: any, deps?: any[]) =>
+          autorun.memo(() => observable(target), deps)
+        const $props = (props: any) => field.setComponentProps(props)
+        const $effect = autorun.effect
+        const $memo = autorun.memo
         const scope = {
           ...options.scope,
           $target: null,
@@ -448,6 +460,10 @@ const getReactions = (schema: ISchema, options: ISchemaFieldFactoryOptions) => {
           $self,
           $deps,
           $dependencies,
+          $observable,
+          $effect,
+          $memo,
+          $props,
         }
         const compile = (expression: any, target?: any) => {
           if (target) {
@@ -469,7 +485,7 @@ const getReactions = (schema: ISchema, options: ISchemaFieldFactoryOptions) => {
             setSchemaFieldState(field, reaction.fulfill, compile)
           }
           if (isStr(reaction.fulfill?.run)) {
-            compile(`{{async function(){${reaction.fulfill?.run}}}}`)()
+            compile(`{{function(){${reaction.fulfill?.run}}}}`)()
           }
         } else {
           if (reaction.target) {
